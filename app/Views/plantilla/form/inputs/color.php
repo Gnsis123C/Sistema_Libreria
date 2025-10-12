@@ -1,11 +1,9 @@
 <div class="form-group position-relative">
     <?= view('plantilla/form/partials/label', ['ins' => $ins]) ?>
-    <input type="<?= $ins['type'] ?>"
+    <input type="color"
            name="<?= $ins['name'] ?>"
            id="<?= $ins['name'] ?>"
            class="form-control"
-           value="<?= $ins['value'] ?? '' ?>"
-           placeholder="<?= $ins['placeholder'] ?? '' ?>"
-           maxlength="<?= $ins['max'] ?? '' ?>"
+           value="<?= $ins['value'] ?? '#000000' ?>"
            <?= $ins['requerido'] ? 'required' : '' ?>>
 </div>

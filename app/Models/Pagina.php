@@ -4,17 +4,17 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class Usuario extends Model
+class Pagina extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'usuario';
-    protected $primaryKey       = 'idusuario';
+    protected $table            = 'pagina';
+    protected $primaryKey       = 'idpagina';
     protected $useAutoIncrement = true;
     protected $insertID         = 0;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['idusuario','idrol','idempresa','usuario', 'pass','email','estado','created_at','updated_at','deleted_at','nombre'];
+    protected $allowedFields    = ['idpagina','nombre','estado','created_at','updated_at','deleted_at'];
 
     // Dates
     protected $updateDate = true;

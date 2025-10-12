@@ -7,10 +7,10 @@
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<meta name="description" content="Bienvenido, iniciar sesión">
 	<title>Iniciar sesión</title>
-    <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('assets/img/icon') ?>/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('assets/img/icon') ?>/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('assets/img/icon') ?>/favicon-16x16.png">
-    <link rel="manifest" href="<?= base_url('assets/img/icon') ?>/site.webmanifest">
+    <link rel="apple-touch-icon" sizes="180x180" href="<?= base_url('assets/img/icon') ?>/apple-icon.png?v=2">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('assets/img/icon') ?>/favicon-32x32.png?v=2">
+    <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('assets/img/icon') ?>/favicon-16x16.png?v=2">
+    <link rel="manifest" href="<?= base_url('assets/img/icon') ?>/site.webmanifest?v=1">
 	<link href="<?= base_url('assets/bootstrap-5.3.3-dist/css/bootstrap.min.css') ?>" rel="stylesheet" >
     <!--begin::Third Party Plugin(Bootstrap Icons)-->
     <link
@@ -33,14 +33,14 @@
         }
 
         .btn-cr{
-            background-color: #760300;
+            background-color: #bb2f6a;
             color: #fff;
             padding-bottom: 12px;
             transition: all 0.2s ease;
         }
 
         .btn-cr:hover{
-            border-color: #760300;
+            border-color: #bb2f6a;
         }
     </style>
 </head>
@@ -48,8 +48,7 @@
 <body class="d-flex text-center">
 	<form class="form-login" id="form_usuario" method="post" action="<?= base_url(route_to('iniciar')) ?>">
         <?= csrf_field() ?>
-        <img src="<?= base_url('assets/img/logolibreria.png') ?>" class="mb-3" width="90" height="90">
-        </svg>
+        <img src="<?= base_url('assets/img/logolibreria.jpg?v=1') ?>" class="mb-3 rounded-1" width="90" height="90">
 
         <h1 class="h3 mb-3 font-weight-normal">Hola, ingresa tus credenciales</h1>
         <!-- 'sr-only' will hide the text : 'Email Address'. So, 'Email Address' will be invisible -->
@@ -75,6 +74,7 @@
             placeholder="Ingrese su usuario"
             required
             autofocus
+            value="admin_genesis"
         >
         <!-- 'sr-only' will hide the text : 'Password'. So, 'Password' will be invisible -->
         <label for="usuario_pass" class="sr-only d-none">Password</label>
@@ -86,6 +86,7 @@
                 class="form-control"
                 placeholder="Ingrese su contraseña"
                 required
+                value="admin2025"
             >
           <button class="btn btn-outline-secondary" id="btn-eye-pass" type="button"><i class="bi bi-eye"></i></button>
         </div>

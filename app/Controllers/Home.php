@@ -15,6 +15,6 @@ class Home extends BaseController
                 )
             )
         ];
-        return view('inicio', $data);
+        return view('dashboard', $data);
     }
 }

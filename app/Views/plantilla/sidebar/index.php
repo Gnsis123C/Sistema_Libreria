@@ -1,143 +1,71 @@
-<!--begin::Sidebar Brand-->
-<div class="sidebar-brand">
-  <!--begin::Brand Link-->
-  <a href="<?= base_url(route_to('inicio')) ?>" class="brand-link">
-    <!--begin::Brand Image-->
-    <img
-      src="<?= base_url() ?>uploads/img/<?= session('usuario')['usuario'] ?>/<?= session('empresa')['logo'] ?>"
-      alt="Logo <?= session('usuario')['usuario'] ?>"
-      class="brand-image opacity-75 shadow"
-    />
-    <!--end::Brand Image-->
-    <!--begin::Brand Text-->
-    <span class="brand-text fw-light d-flex flex-column gap-0">
-      <?= session('usuario')['usuario'] ?>
-      <p class="p-size-menu-email pt-0 pb-0 my-0">
-        <?= session('usuario')['email'] ?>
-      </p>
-    </span>
-    <!--end::Brand Text-->
-  </a>
-  <!--end::Brand Link-->
+<div class="d-flex align-items-center">
+  <button class="btn btn-link mobile-toggle me-3" onclick="toggleSidebar()">
+    <i class="fas fa-bars"></i>
+  </button>
 </div>
-<!--end::Sidebar Brand-->
+<div class="user-info">
+  <!-- Ejemplo adicional: Solo icono con badge -->
+  <div class="dropdown ms-3 d-inline-block me-3">
+    <button class="btn btn-light dropdown-toggle-split notification-badge disabled" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border: none;">
+      <i class="fas fa-bell fs-5"></i>
+      <span class="notification-count">1</span>
+    </button>
 
-<!--begin::Sidebar Wrapper-->
-<div class="sidebar-wrapper">
-  <nav class="mt-2">
-    <!--begin::Sidebar Menu-->
-        <ul
-          class="nav sidebar-menu flex-column"
-          data-lte-toggle="treeview"
-          role="menu"
-          data-accordion="false"
-            >
-          <li class="nav-item">
-            <a href="<?= base_url(route_to('inicio')) ?>" class="nav-link <?= $pagina == "inicio" ? "active": "" ?>">
-              <i class="nav-icon bi bi-house-door-fill"></i>
-              <p>Inicio</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url(route_to('empresa')) ?>" class="nav-link <?= $pagina == "empresa" ? "active": "" ?>">
-              <i class="nav-icon bi bi-list-columns"></i>
-              <p>Empresas</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url(route_to('cliente')) ?>" class="nav-link <?= $pagina == "cliente" ? "active": "" ?>">
-              <i class="nav-icon bi bi-people"></i>
-              <p>Clientes/Proveedores</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url(route_to('categoria')) ?>" class="nav-link <?= $pagina == "categoria" ? "active": "" ?>">
-              <i class="nav-icon bi bi-bezier"></i>
-              <p>Categorias</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url(route_to('atributo')) ?>" class="nav-link <?= $pagina == "atributo" ? "active": "" ?>">
-              <i class="nav-icon bi bi-bezier"></i>
-              <p>Atributos</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url(route_to('producto')) ?>" class="nav-link <?= $pagina == "producto" ? "active": "" ?>">
-              <i class="nav-icon bi bi-basket2"></i>
-              <p>Productos</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="<?= base_url(route_to('compra')) ?>" class="nav-link <?= $pagina == "compra" ? "active": "" ?>">
-              <i class="nav-icon bi bi-currency-dollar"></i>
-              <p>Compras</p>
-            </a>
-          </li>
-          <li class="nav-item d-none">
-            <a href="#" class="nav-link">
-              <i class="nav-icon bi bi-clipboard-fill"></i>
-              <p>
-                Layout Options
-                <span class="nav-badge badge text-bg-secondary me-3">6</span>
-                <i class="nav-arrow bi bi-chevron-right"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-item">
-                <a href="../layout/unfixed-sidebar.html" class="nav-link">
-                  <i class="nav-icon bi bi-circle"></i>
-                  <p>Default Sidebar</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="../layout/fixed-sidebar.html" class="nav-link">
-                  <i class="nav-icon bi bi-circle"></i>
-                  <p>Fixed Sidebar</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="../layout/layout-custom-area.html" class="nav-link">
-                  <i class="nav-icon bi bi-circle"></i>
-                  <p>Layout <small>+ Custom Area </small></p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="../layout/sidebar-mini.html" class="nav-link">
-                  <i class="nav-icon bi bi-circle"></i>
-                  <p>Sidebar Mini</p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="../layout/collapsed-sidebar.html" class="nav-link">
-                  <i class="nav-icon bi bi-circle"></i>
-                  <p>Sidebar Mini <small>+ Collapsed</small></p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="../layout/logo-switch.html" class="nav-link">
-                  <i class="nav-icon bi bi-circle"></i>
-                  <p>Sidebar Mini <small>+ Logo Switch</small></p>
-                </a>
-              </li>
-              <li class="nav-item">
-                <a href="../layout/layout-rtl.html" class="nav-link">
-                  <i class="nav-icon bi bi-circle"></i>
-                  <p>Layout RTL</p>
-                </a>
-              </li>
-            </ul>
-          </li>
-          <li class="nav-header">Salir del sistema</li>
-          <li class="nav-item">
-            <a href="<?= base_url(route_to('salir')) ?>" class="nav-link">
-              <i class="nav-icon bi bi-box-arrow-right"></i>
-              <p>Cerrar sesión</p>
-            </a>
-          </li>
+    <ul class="dropdown-menu notification-dropdown p-0">
+      <li>
+        <div class="dropdown-header dropdown-header-custom p-3">
+          <i class="fas fa-bell me-2"></i>
+          Notificaciones
+        </div>
+      </li>
+
+      <li class="notification-item unread">
+        <div class="dropdown-item-text p-3">
+          <div class="d-flex align-items-center">
+            <div class="notification-icon bg-danger me-3">
+              <i class="fas fa-exclamation"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="fw-semibold">Alerta de seguridad</div>
+              <div class="text-muted small">Nuevo inicio de sesión detectado</div>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li class="notification-item">
+        <div class="dropdown-item-text p-3">
+          <div class="d-flex align-items-center">
+            <div class="notification-icon bg-success me-3">
+              <i class="fas fa-check"></i>
+            </div>
+            <div class="flex-grow-1">
+              <div class="fw-semibold">Tarea completada</div>
+              <div class="text-muted small">Backup realizado con éxito</div>
+            </div>
+          </div>
+        </div>
+      </li>
+
+      <li>
+        <hr class="dropdown-divider m-0">
+      </li>
+
+      <li>
+        <a class="dropdown-item dropdown-footer text-center py-2" href="#">
+          Ver todo
+        </a>
+      </li>
     </ul>
-    <!--end::Sidebar Menu-->
-  </nav>
+  </div>
+  <div class="text-end me-2 d-flex flex-column gap-0">
+    <div class="fw-semibold">
+      Hola :), Bienvenido, <span class="text-primary"><?= session('usuario')['nombre'] ?></span>
     </div>
-    <!--end::Sidebar Wrapper-->
-              
+    <small class="text-muted"><?= session('usuario')['email'] ?></small>
+
+  </div>
+  <a class="btn btn-success btn-sm" title="Cerrar sesión" href="<?= base_url(route_to("salir")) ?>">
+    <i class="fas fa-sign-out-alt"></i>
+  </a>
+</div>

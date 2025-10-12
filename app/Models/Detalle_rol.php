@@ -4,17 +4,17 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class Usuario extends Model
+class Detalle_rol extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'usuario';
-    protected $primaryKey       = 'idusuario';
+    protected $table            = 'detalle_rol';
+    protected $primaryKey       = 'iddetalle_rol';
     protected $useAutoIncrement = true;
     protected $insertID         = 0;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['idusuario','idrol','idempresa','usuario', 'pass','email','estado','created_at','updated_at','deleted_at','nombre'];
+    protected $allowedFields    = ['iddetalle_rol','idrol','idpagina','estado','leer','actualizar','editar','crear','created_at','updated_at','deleted_at'];
 
     // Dates
     protected $updateDate = true;
@@ -71,5 +71,26 @@ class Usuario extends Model
 
     public function countDelete(){
         return $this->onlyDeleted()->countAllResults();
+    }
+
+    public function getPermisos($idrol) {
+        try {
+            $db = \Config\Database::connect();
+            $builder = $db->table('detalle_rol');
+            $builder->select('detalle_rol.*, pagina.nombre as opcion_menu');
+            $builder->join('pagina', 'pagina.idpagina = detalle_rol.idpagina');
+            $builder->where('detalle_rol.idrol', $idrol);
+            $query = $builder->get();
+            $permisos = $query->getResult('array') ?? [];
+            return [
+                'resp'  => true,
+                'data'  => $permisos
+            ];
+        } catch (\Exception $e) {
+            return [
+                'resp'  => false,
+                'error' => $e->getMessage()
+            ];
+        }
     }
 }

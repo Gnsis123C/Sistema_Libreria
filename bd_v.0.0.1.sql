@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1:3306
--- Tiempo de generación: 17-05-2025 a las 03:19:19
+-- Tiempo de generación: 11-10-2025 a las 23:56:30
 -- Versión del servidor: 9.1.0
--- Versión de PHP: 8.3.14
+-- Versión de PHP: 8.1.31
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Base de datos: `multiples-inventario`
+-- Base de datos: `sistema_libreria`
 --
 
 -- --------------------------------------------------------
@@ -30,16 +30,11 @@ SET time_zone = "+00:00";
 DROP TABLE IF EXISTS `atributo`;
 CREATE TABLE IF NOT EXISTS `atributo` (
   `idatributo` int NOT NULL AUTO_INCREMENT,
-  `idproducto` int NOT NULL,
   `nombre` varchar(50) NOT NULL DEFAULT '',
   `estado` varchar(2) NOT NULL DEFAULT '1',
-  `precio_pvp` float NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
-  `stock` int NOT NULL,
-  `imagen_principal` varchar(200) NOT NULL DEFAULT '',
-  `idmarca` int DEFAULT NULL,
   PRIMARY KEY (`idatributo`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -52,50 +47,13 @@ CREATE TABLE IF NOT EXISTS `atributo` (
 DROP TABLE IF EXISTS `categoria`;
 CREATE TABLE IF NOT EXISTS `categoria` (
   `idcategoria` int NOT NULL AUTO_INCREMENT,
-  `idempresa` int NOT NULL,
   `nombre` varchar(50) NOT NULL DEFAULT '',
   `estado` varchar(2) NOT NULL DEFAULT '1',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`idcategoria`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Volcado de datos para la tabla `categoria`
---
-
-INSERT INTO `categoria` (`idcategoria`, `idempresa`, `nombre`, `estado`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 'CUADERNO', '1', '2025-04-23 10:38:44', '2025-04-23 15:39:45', NULL),
-(2, 1, 'CUADERNO PEQUEñO', '1', '2025-05-04 21:39:35', '2025-05-04 21:39:35', NULL);
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `cliente`
---
-
-DROP TABLE IF EXISTS `cliente`;
-CREATE TABLE IF NOT EXISTS `cliente` (
-  `idcliente` int NOT NULL AUTO_INCREMENT,
-  `idempresa` int NOT NULL,
-  `nombre` varchar(50) NOT NULL DEFAULT '',
-  `ci` varchar(50) NOT NULL DEFAULT '',
-  `tipo` varchar(2) NOT NULL DEFAULT '1',
-  `estado` varchar(2) NOT NULL DEFAULT '1',
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `deleted_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`idcliente`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Volcado de datos para la tabla `cliente`
---
-
-INSERT INTO `cliente` (`idcliente`, `idempresa`, `nombre`, `ci`, `tipo`, `estado`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 'CARLOS', '0942096470', '0', '1', '2025-04-22 12:09:45', '2025-04-22 21:03:45', NULL),
-(2, 1, 'MARINA', '2222222222', '1', '1', '2025-04-23 10:40:16', '2025-04-23 10:40:16', NULL);
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -106,8 +64,8 @@ INSERT INTO `cliente` (`idcliente`, `idempresa`, `nombre`, `ci`, `tipo`, `estado
 DROP TABLE IF EXISTS `compra`;
 CREATE TABLE IF NOT EXISTS `compra` (
   `idcompra` int NOT NULL AUTO_INCREMENT,
-  `idempresa` int NOT NULL,
-  `idcliente` int NOT NULL,
+  `idpersona` int NOT NULL,
+  `idusuario` int NOT NULL,
   `fecha` date DEFAULT NULL,
   `estado` varchar(2) NOT NULL DEFAULT '1',
   `created_at` datetime DEFAULT NULL,
@@ -119,33 +77,51 @@ CREATE TABLE IF NOT EXISTS `compra` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `detcompra`
+-- Estructura de tabla para la tabla `detalle_atributo_producto`
 --
 
-DROP TABLE IF EXISTS `detcompra`;
-CREATE TABLE IF NOT EXISTS `detcompra` (
-  `iddetcompra` int NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `detalle_atributo_producto`;
+CREATE TABLE IF NOT EXISTS `detalle_atributo_producto` (
+  `iddetalle_atributo_producto` int NOT NULL AUTO_INCREMENT,
+  `idvaloratributo` int NOT NULL,
+  `idproducto` int NOT NULL,
+  `estado` varchar(2) NOT NULL DEFAULT '1',
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`iddetalle_atributo_producto`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `detalle_compra`
+--
+
+DROP TABLE IF EXISTS `detalle_compra`;
+CREATE TABLE IF NOT EXISTS `detalle_compra` (
+  `iddetalle_compra` int NOT NULL AUTO_INCREMENT,
   `idcompra` int NOT NULL,
   `idproducto` int NOT NULL,
-  `precio` float NOT NULL DEFAULT '0',
+  `precio_compra` float NOT NULL DEFAULT '0',
   `iva` float NOT NULL DEFAULT '0',
   `cantidad` int NOT NULL DEFAULT '0',
   `estado` varchar(2) NOT NULL DEFAULT '1',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`iddetcompra`)
+  PRIMARY KEY (`iddetalle_compra`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `detrol`
+-- Estructura de tabla para la tabla `detalle_rol`
 --
 
-DROP TABLE IF EXISTS `detrol`;
-CREATE TABLE IF NOT EXISTS `detrol` (
-  `iddetrol` int NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `detalle_rol`;
+CREATE TABLE IF NOT EXISTS `detalle_rol` (
+  `iddetalle_rol` int NOT NULL AUTO_INCREMENT,
   `idrol` int NOT NULL,
   `idpagina` int NOT NULL,
   `nombre` varchar(100) NOT NULL DEFAULT '',
@@ -157,28 +133,29 @@ CREATE TABLE IF NOT EXISTS `detrol` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`iddetrol`)
+  PRIMARY KEY (`iddetalle_rol`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `detventa`
+-- Estructura de tabla para la tabla `detalle_venta`
 --
 
-DROP TABLE IF EXISTS `detventa`;
-CREATE TABLE IF NOT EXISTS `detventa` (
-  `iddetventa` int NOT NULL AUTO_INCREMENT,
+DROP TABLE IF EXISTS `detalle_venta`;
+CREATE TABLE IF NOT EXISTS `detalle_venta` (
+  `iddetalle_venta` int NOT NULL AUTO_INCREMENT,
   `idventa` int NOT NULL,
   `idproducto` int NOT NULL,
-  `precio` float NOT NULL DEFAULT '0',
+  `precio_venta` float NOT NULL DEFAULT '0',
   `iva` float NOT NULL DEFAULT '0',
   `cantidad` int NOT NULL DEFAULT '0',
   `estado` varchar(2) NOT NULL DEFAULT '1',
+  `temporada` varchar(2) NOT NULL DEFAULT '1',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
-  PRIMARY KEY (`iddetventa`)
+  PRIMARY KEY (`iddetalle_venta`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -198,45 +175,14 @@ CREATE TABLE IF NOT EXISTS `empresa` (
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`idempresa`)
-) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Volcado de datos para la tabla `empresa`
 --
 
 INSERT INTO `empresa` (`idempresa`, `nombre`, `direccion`, `logo`, `estado`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 'ROJANO DEV', 'MILAGRO', 'logo-cr-svg-blanco.svg?v=1', '1', NULL, '2025-04-22 21:04:06', NULL),
-(2, 'SADSAD', 'SADASD', 'logo-cr-svg-blanco.svg?v=1', '0', '2025-04-06 17:30:30', '2025-04-07 22:43:18', '2025-04-07 22:43:18');
-
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `marca`
---
-
-DROP TABLE IF EXISTS `marca`;
-CREATE TABLE IF NOT EXISTS `marca` (
-  `idmarca` int NOT NULL AUTO_INCREMENT,
-  `nombre` varchar(50) NOT NULL DEFAULT '',
-  `estado` varchar(2) NOT NULL DEFAULT '1',
-  `created_at` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT NULL,
-  `deleted_at` datetime DEFAULT NULL,
-  `imagen` varchar(200) NOT NULL DEFAULT '',
-  `idempresa` int NOT NULL,
-  PRIMARY KEY (`idmarca`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Volcado de datos para la tabla `marca`
---
-
-INSERT INTO `marca` (`idmarca`, `nombre`, `estado`, `created_at`, `updated_at`, `deleted_at`, `imagen`, `idempresa`) VALUES
-(1, 'ASAS', '1', '2025-05-05 22:26:52', '2025-05-06 03:30:47', NULL, 'http://localhost/multiples-sistema-inventario/public/uploads/1746502012_6835345ad250dad5909f.jpg', 1),
-(2, 'XFDF', '1', '2025-05-05 22:28:11', '2025-05-05 22:28:11', NULL, 'http://localhost/multiples-sistema-inventario/public/uploads/1746502091_9adc29b179195e66a7d3.jpg', 1),
-(3, 'DFSDFSDF', '1', '2025-05-05 22:29:39', '2025-05-05 22:29:39', NULL, 'http://localhost/multiples-sistema-inventario/public/uploads/1746502179_63bd05a7406b8a305a4b.jpg', 1),
-(4, 'ERER', '1', '2025-05-05 22:30:25', '2025-05-05 22:30:25', NULL, 'uploads/1746502225_0fb2542406e96170acbb.jpg', 1),
-(5, 'SADSFDDF', '1', '2025-05-13 22:27:05', '2025-05-13 22:27:05', NULL, 'uploads/1747193225_1607bc0e98f7ccf3bef9.jpg', 1);
+(1, 'Gen&Car', 'El Deseo, Santa Rosa #2', '/assets/img/logolibreria.jpg', '1', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -253,6 +199,37 @@ CREATE TABLE IF NOT EXISTS `pagina` (
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`idpagina`)
+) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Volcado de datos para la tabla `pagina`
+--
+
+INSERT INTO `pagina` (`idpagina`, `nombre`, `estado`, `created_at`, `updated_at`, `deleted_at`) VALUES
+(1, 'usuario', '1', NULL, NULL, NULL),
+(2, 'empresa', '1', NULL, NULL, NULL),
+(3, 'rol', '1', NULL, NULL, NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `persona`
+--
+
+DROP TABLE IF EXISTS `persona`;
+CREATE TABLE IF NOT EXISTS `persona` (
+  `idpersona` int NOT NULL AUTO_INCREMENT,
+  `nombre_completo` varchar(50) NOT NULL DEFAULT '',
+  `email` varchar(50) NOT NULL DEFAULT '',
+  `telefono` varchar(2) NOT NULL DEFAULT '1',
+  `direccion` varchar(2) NOT NULL DEFAULT '1',
+  `tipo` varchar(2) NOT NULL DEFAULT '1',
+  `cedula_ruc` varchar(2) NOT NULL DEFAULT '1',
+  `estado` varchar(2) NOT NULL DEFAULT '1',
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`idpersona`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
@@ -264,18 +241,19 @@ CREATE TABLE IF NOT EXISTS `pagina` (
 DROP TABLE IF EXISTS `producto`;
 CREATE TABLE IF NOT EXISTS `producto` (
   `idproducto` int NOT NULL AUTO_INCREMENT,
-  `idcategoria` int NOT NULL,
   `idempresa` int NOT NULL,
+  `idcategoria` int NOT NULL,
+  `codigo_barras` varchar(50) NOT NULL DEFAULT '',
   `nombre` varchar(50) NOT NULL DEFAULT '',
-  `pvp` float NOT NULL DEFAULT '0',
+  `precio_venta` float NOT NULL DEFAULT '0',
   `stock` int NOT NULL DEFAULT '0',
+  `stock_minimo` int NOT NULL DEFAULT '0',
   `imagen` varchar(400) NOT NULL DEFAULT '',
-  `descripcion` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+  `descripcion` longtext NOT NULL,
   `estado` varchar(2) NOT NULL DEFAULT '1',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
-  `tipo` varchar(2) NOT NULL DEFAULT 's',
   PRIMARY KEY (`idproducto`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -294,14 +272,15 @@ CREATE TABLE IF NOT EXISTS `rol` (
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
   PRIMARY KEY (`idrol`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Volcado de datos para la tabla `rol`
 --
 
 INSERT INTO `rol` (`idrol`, `nombre`, `estado`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 'super_admin', '1', NULL, NULL, NULL);
+(1, 'super_admin', '1', NULL, NULL, NULL),
+(2, 'trabajador', '1', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -321,16 +300,35 @@ CREATE TABLE IF NOT EXISTS `usuario` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `deleted_at` datetime DEFAULT NULL,
-  `logo` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT 'logo-cr-svg-blanco.svg',
+  `nombre` varchar(100) NOT NULL DEFAULT '',
   PRIMARY KEY (`idusuario`)
-) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Volcado de datos para la tabla `usuario`
 --
 
-INSERT INTO `usuario` (`idusuario`, `idempresa`, `idrol`, `usuario`, `pass`, `email`, `estado`, `created_at`, `updated_at`, `deleted_at`, `logo`) VALUES
-(1, 1, 1, 'super_admin', '$2y$10$K5CMP.hTMX1mo9KOckxOTOqB5irDZTzx44apXc/e4hFbWOQS5RptC', 'c.rojano.95@gmail.com', '1', NULL, NULL, NULL, '');
+INSERT INTO `usuario` (`idusuario`, `idempresa`, `idrol`, `usuario`, `pass`, `email`, `estado`, `created_at`, `updated_at`, `deleted_at`, `nombre`) VALUES
+(1, 1, 1, 'admin_genesis', '$2y$10$aK4XFgiV3cPjVhSsyT4PXOq.H.tCtqZWZ4BJXwRSthYYeNoPK7Qz.', 'gquintanam@unemi.edu.ec', '1', NULL, '2025-10-11 23:12:34', NULL, 'Génesis'),
+(6, 1, 1, 'crojano', '$2y$10$VHOJa5mvInV83qskN1xx6uSV6qqBbJYLsOFBQJ.5jhFgVvgke7mIq', 'c.rojano.95@gmail.com', '1', '2025-10-11 18:10:52', '2025-10-11 23:53:05', NULL, 'CARLOS ROJANO');
+
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `valoratributo`
+--
+
+DROP TABLE IF EXISTS `valoratributo`;
+CREATE TABLE IF NOT EXISTS `valoratributo` (
+  `idvaloratributo` int NOT NULL AUTO_INCREMENT,
+  `idatributo` int NOT NULL,
+  `nombre` varchar(50) NOT NULL DEFAULT '',
+  `estado` varchar(2) NOT NULL DEFAULT '1',
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `deleted_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`idvaloratributo`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- --------------------------------------------------------
 
@@ -341,10 +339,11 @@ INSERT INTO `usuario` (`idusuario`, `idempresa`, `idrol`, `usuario`, `pass`, `em
 DROP TABLE IF EXISTS `venta`;
 CREATE TABLE IF NOT EXISTS `venta` (
   `idventa` int NOT NULL AUTO_INCREMENT,
-  `idempresa` int NOT NULL,
-  `idcliente` int NOT NULL,
+  `idusuario` int NOT NULL,
+  `idpersona` int NOT NULL,
   `fecha` date DEFAULT NULL,
-  `n_factura` varchar(50) NOT NULL,
+  `numero_factura` varchar(50) NOT NULL,
+  `precio_total` float NOT NULL,
   `estado` varchar(2) NOT NULL DEFAULT '1',
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,

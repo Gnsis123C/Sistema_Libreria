@@ -1,11 +1,10 @@
 <div class="form-group position-relative">
     <?= view('plantilla/form/partials/label', ['ins' => $ins]) ?>
-    <input type="<?= $ins['type'] ?>"
+    <input type="text"
            name="<?= $ins['name'] ?>"
            id="<?= $ins['name'] ?>"
            class="form-control"
            value="<?= $ins['value'] ?? '' ?>"
            placeholder="<?= $ins['placeholder'] ?? '' ?>"
-           maxlength="<?= $ins['max'] ?? '' ?>"
            <?= $ins['requerido'] ? 'required' : '' ?>>
 </div>

@@ -138,8 +138,8 @@
                                         console.log(grupos);
                                     }*/
                                     return { 
-                                        id: obj.<?= $ins['results']['id'] ?>, 
-                                        text: obj.<?= $ins['results']['text'] ?>
+                                        id: obj['<?= $ins['results']['id'] ?>'], 
+                                        text: obj['<?= $ins['results']['text'] ?>']
                                     };
                                 }),
                                 pagination: {
@@ -193,8 +193,8 @@
                                         console.log(grupos);
                                     }*/
                                     return { 
-                                        id: obj.<?= $ins['results']['id'] ?>, 
-                                        text: obj.<?= $ins['results']['text'] ?>
+                                        id: obj['<?= $ins['results']['id'] ?>'], 
+                                        text: obj['<?= $ins['results']['text'] ?>']
                                     };
                                 }),
                                 pagination: {

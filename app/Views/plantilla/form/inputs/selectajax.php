@@ -1,8 +1,6 @@
 <div class="form-group position-relative">
     
-<label for="<?= $ins['name'] ?>" class="control-label ">
-        <?= $ins['title'] ?> <small id="asterisco-requerido-<?= $ins['name'] ?>" class="asterisco-danger text-danger"><?= $ins['requerido']?'*':'' ?></small>
-    </label>
+    <?= view('plantilla/form/partials/label', ['ins' => $ins]) ?>
     <div class=" select-cr" style="">
         
         <div class="input-group mb-1">
@@ -16,7 +14,7 @@
                 <?php } ?>
             </select>
             
-            <a class="btn btn-primary" target="_blank" href="<?= base_url($ins['url']) ?>">Añadir <i class="fa fa-plus"></i></a>
+            <a class="btn btn-primary" target="_blank" href="<?= $ins['url'] ?>">Añadir <i class="fa fa-plus"></i></a>
         </div>
 
     </div>

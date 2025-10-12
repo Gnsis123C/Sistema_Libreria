@@ -32,7 +32,10 @@ class Login extends BaseController
 
                 $usuarioBD  = new Usuario();
                 $empresaDB  = new Empresa();
-                $resp   = $usuarioBD->where('usuario',strtolower($user))->first();
+                $resp   = $usuarioBD
+                            ->where('estado', 1)
+                            ->where('usuario',strtolower($user))
+                            ->first() ?? null;
 
                 if(!$resp) return redirect()->to(base_url().route_to('login'))->with('mensaje','Usuario o contraseña ingresados incorrectos');
 
@@ -45,7 +48,7 @@ class Login extends BaseController
                     $session->set($data);
                     return redirect()->to(route_to('login'));
                 }else{
-                    return redirect()->to(route_to('login'))->with('mensaje','Usuario o contraseña ingresados incorrectos 2');
+                    return redirect()->to(route_to('login'))->with('mensaje','Usuario o contraseña ingresados incorrectos');
                 }
 
             }else{

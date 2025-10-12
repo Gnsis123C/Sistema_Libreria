@@ -1,57 +1,33 @@
-<!--begin::Container-->
-<div class="container-fluid">
-  <!--begin::Start Navbar Links-->
-  <ul class="navbar-nav">
-    <li class="nav-item">
-      <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
-        <i class="bi bi-list"></i>
-      </a>
-    </li>
-    <!-- <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Home</a></li>
-    <li class="nav-item d-none d-md-block"><a href="#" class="nav-link">Contact</a></li> -->
-  </ul>
-  <!--end::Start Navbar Links-->
-  <!--begin::End Navbar Links-->
-  <ul class="navbar-nav ms-auto">
-    <!--begin::Notifications Dropdown Menu-->
-    <li class="nav-item dropdown">
-      <a class="nav-link" data-bs-toggle="dropdown" href="#">
-        <i class="bi bi-bell-fill"></i>
-        <span class="navbar-badge badge text-bg-warning">1</span>
-      </a>
-      <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
-        <span class="dropdown-item dropdown-header">1 Notifications</span>
-        <div class="dropdown-divider"></div>
-        <a href="#" class="dropdown-item">
-          <i class="bi bi-envelope me-2"></i> 4 new messages
-          <span class="float-end text-secondary fs-7">3 mins</span>
-        </a>
-        <div class="dropdown-divider"></div>
-        <a href="#" class="dropdown-item dropdown-footer"> See All Notifications </a>
+<div class="logo p-2">
+    <h4>
+      <div class="text-center">
+        <img src="<?= base_url(session('empresa')['logo']) ?>" class="img-logo-empresa rounded" alt="Logo" width="100" height="100">
       </div>
-    </li>
-    <!--end::Notifications Dropdown Menu-->
-    <!--begin::User-->
-    <!-- <li class="nav-item  user-menu">
-      <label class="navbar-text">
-        <img
-          src="<?= base_url() ?>assets/img/user.png"
-          class="user-image rounded-circle ms-2"
-          alt="Foto <?= session('usuario')['usuario'] ?>"
-        />
-        <span class="d-none d-md-inline"><?= session('usuario')['usuario'] ?></span>
-      </label>
-    </li> -->
-    <!--end::User-->
-    <li class="nav-item cerrar-sesion-icon-nav" title="Cerrar sesión">
-      <a class="nav-link d-flex flex-column justify-content-center align-items-center" href="<?= base_url(route_to('salir')) ?>" role="button">
-        <i class="bi bi-box-arrow-right"></i>
-        <p class="py-0 my-0">
-          Cerrar sesión
-        </p>
-      </a>
-    </li>
-  </ul>
-  <!--end::End Navbar Links-->
+    </h4>
 </div>
-<!--end::Container-->
+<ul class="nav flex-column flex-nowrap items-menu-nav ps-5 py-5 pt-4">
+  <li class="nav-item">
+    <a class="nav-link <?= $pagina == 'inicio' ? 'active' : '' ?>" href="<?= base_url() ?>">
+
+      <i class="lni lni-home-2"></i>Inicio
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <?= $pagina == 'usuario' ? 'active' : '' ?>" href="<?= base_url(route_to('usuario')) ?>">
+      <i class="lni lni-user-multiple-4"></i>Usuarios
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link <?= $pagina == 'rol' ? 'active' : '' ?>" href="<?= base_url(route_to('rol')) ?>">
+      <i class="lni lni-gear-1"></i>Rol 
+      <!-- <span class="badge text-dark bg-white ms-2">1</span> -->
+    </a>
+  </li>
+</ul>
+<ul class="nav flex-column position-absolute w-100 bottom-0">
+  <li class="nav-item mt-auto border-top">
+    <a class="nav-link text-dark-2 fw-normal" href="<?= base_url(route_to("salir")) ?>">
+      <i class="fas fa-sign-out-alt"></i>Cerrar Sesión
+    </a>
+  </li>
+</ul>
