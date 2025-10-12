@@ -60,7 +60,7 @@
   </div>
   <div class="text-end me-2 d-flex flex-column gap-0">
     <div class="fw-semibold">
-      Hola :), Bienvenido, <span class="text-primary"><?= session('usuario')['nombre'] ?></span>
+      Hola, Bienvenid@, <span class="text-primary"><?= session('usuario')['nombre'] ?></span>
     </div>
     <small class="text-muted"><?= session('usuario')['email'] ?></small>
 

@@ -53,7 +53,7 @@
 <?= $this->section('content') ?>
 <div class="mb-4">
   <h1 class="display-6 fw-bold mb-2 text-dark">
-    M. Usuarios
+    Módulo de Rol
   </h1>
 </div>
 <!--begin::Row-->

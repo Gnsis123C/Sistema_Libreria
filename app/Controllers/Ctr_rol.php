@@ -19,7 +19,7 @@ class Ctr_rol extends BaseController{
             'pagina'    =>  'rol',
             'breadcrumb' => array(
                 array(
-                    'url' => base_url(route_to('rol')),
+                    'url' => base_url(route_to('iniciar')),
                     'name' => 'Inicio'
                 ),
                 array(
