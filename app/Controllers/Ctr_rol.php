@@ -6,13 +6,12 @@ use App\Models\Detalle_rol;
 use Irsyadulibad\DataTables\DataTables;
 
 class Ctr_rol extends BaseController{
+    private $pagina = 'rol';
     public function index(){
         $ins = new Rol();
         $data = [
             'data_accessos' => [],
-            'esConsedido'   => (object)[
-                "ver" => true
-            ],
+            'esConsedido'   => (object)esConsedido($this->pagina),
             'registros_no_eliminados'   =>  $ins->countActive(),
             'registros_eliminados'   =>  $ins->countDelete(),
             'titulo'   =>  'Listado de roles del sistema',
@@ -29,7 +28,7 @@ class Ctr_rol extends BaseController{
             )
         ];
 
-        if($data["esConsedido"]->ver){
+        if($data["esConsedido"]->leer){
             return view('html/rol/index', $data);
         }
 
@@ -42,6 +41,7 @@ class Ctr_rol extends BaseController{
     // Tabla de rols
     private function listar(){
         if ($this->request->isAJAX()) {
+            $btn_acciones_list = getDisabledBtnAction($this->pagina);
             $table = db_connect()->table('rol');
             $datatable = $table
                 ->select('rol.*')
@@ -61,10 +61,10 @@ class Ctr_rol extends BaseController{
                     $datatable->where('rol.idrol', $this->request->getGetPost()['idrol']);
                 }
                 return datatables($datatable)
-                    ->addColumn('accion', function($data) {
+                    ->addColumn('accion', function($data) use ($btn_acciones_list) {
                         $disabled = [1];
                         return btn_acciones(
-                            ['all'] , 
+                            $btn_acciones_list , 
                             base_url(route_to('rol.editar', $data->idrol)), 
                             $data->idrol, 
                             in_array($data->idrol, $disabled) ? 'disabled':'',
@@ -89,9 +89,7 @@ class Ctr_rol extends BaseController{
     public function crear(){
         $data = [
             'data_accessos' => [],
-            'esConsedido'   => (object)[
-                "crear" => true
-            ],
+            'esConsedido'   => (object)esConsedido($this->pagina),
             'titulo'   =>  'Crear rol',
             'subtitulo'   =>  'Nuevo registro de rol',
             'pagina'    =>  'rol.crear',
@@ -127,9 +125,7 @@ class Ctr_rol extends BaseController{
     public function editar($id){
         $data = [
             'data_accessos' => [],
-            'esConsedido'   => (object)[
-                "editar" => true
-            ],
+            'esConsedido'   => (object)esConsedido($this->pagina),
             'titulo'   =>  'Editar rol',
             'pagina'    =>  'rol.editar',
             'action'    =>  'edit',
@@ -151,7 +147,7 @@ class Ctr_rol extends BaseController{
             )
         ];
 
-        if($data["esConsedido"]->editar){
+        if($data["esConsedido"]->modificar){
             return view('html/rol/editar', $data);
         }
 

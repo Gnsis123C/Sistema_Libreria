@@ -5,113 +5,15 @@ use App\Models\Empresa;
 use Irsyadulibad\DataTables\DataTables;
 
 class Ctr_empresa extends BaseController{
+    private $pagina = 'usuario';
+
     public function index(){
-        $ins = new Empresa();
+        $id = session('empresa')["idempresa"];
         $data = [
             'data_accessos' => [],
-            'esConsedido'   => (object)[
-                "ver" => true
-            ],
-            'registros_no_eliminados'   =>  $ins->countActive(),
-            'registros_eliminados'   =>  $ins->countDelete(),
-            'titulo'   =>  'Listado de empresas',
-            'pagina'    =>  'empresa',
-            'breadcrumb' => array(
-                array(
-                    'url' => base_url(route_to('inicio')),
-                    'name' => 'Inicio'
-                ),
-                array(
-                    'url' => base_url(route_to('empresa')),
-                    'name' => 'Listado de empresas'
-                )
-            )
-        ];
-
-        if($data["esConsedido"]->ver){
-            return view('html/empresa/index', $data);
-        }
-
-        return $this->response->setJSON([
-            "resp" => false,
-            "message" => "No tienes acceso"
-        ]);
-    }
-
-    private function listar(){
-        if ($this->request->isAJAX()) {
-            $table = db_connect()->table('empresa');
-            $datatable = $table->select('empresa.*');
-
-            if($this->request->getGetPost()['eliminado'] == '1'){
-                $datatable->where('empresa.deleted_at <>' , null);
-                return datatables($datatable)
-                    ->addColumn('accion', function($data) {
-                        return btn_acciones(['restore'] , '', $data->idempresa);
-                    })
-                    ->rawColumns(['accion'])
-                    ->make(false);
-            }else{
-                $datatable->where('empresa.deleted_at' , null);
-                return datatables($datatable)
-                    ->addColumn('accion', function($data) {
-                        return btn_acciones(['all'] , base_url(route_to('empresa.editar', $data->idempresa)), $data->idempresa);
-                    })
-                    ->editColumn('estado', function($value, $data) {
-                        return '<a title="Cambiar estado" class="btn btn-link btn-sm text-'.($value=='1'?'success':'warning').'" data-action="estado" data-estado="'.$value.'" data-id="'.$data->idempresa.'" href="#">'.($value=='1'?'<i class="bi bi-toggle-on fs-4"></i>':'<i class="bi bi-toggle-off fs-4"></i>').'</a>';
-                    })
-                    ->rawColumns(['accion', 'estado'])
-                    ->make(false);
-            }
-        }else{
-            $this->response->setStatusCode(404, 'Error con la petición');
-        }
-    }
-
-    public function crear(){
-        $data = [
-            'data_accessos' => [],
-            'esConsedido'   => (object)[
-                "crear" => true
-            ],
-            'titulo'   =>  'Crear registro',
-            'pagina'    =>  'empresa.crear',
-            'action'    =>  'add',
-            'attrform' => $this->atributosForm('crear', 0),
-            'breadcrumb' => array(
-                array(
-                    'url' => base_url(route_to('inicio')),
-                    'name' => 'Inicio'
-                ),
-                array(
-                    'url' => base_url(route_to('empresa')),
-                    'name' => 'Listado de empresas'
-                ),
-                array(
-                    'url' => base_url(route_to('empresa.crear')),
-                    'name' => 'Crear registro'
-                )
-            )
-        ];
-
-        if($data["esConsedido"]->crear){
-            return view('html/empresa/crear', $data);
-        }
-
-        return $this->response->setJSON([
-            "resp" => false,
-            "message" => "No tienes acceso"
-        ]);
-    }
-
-    public function editar($id){
-        $data = [
-            'data_accessos' => [],
-            'esConsedido'   => (object)[
-                "editar" => true
-            ],
+            'esConsedido'   => (object)esConsedido($this->pagina),
             'titulo'   =>  'Editar registro',
-            'pagina'    =>  'empresa.editar',
+            'pagina'    =>  'empresa',
             'action'    =>  'edit',
             'id'        =>  'idempresa',
             'attrform' => $this->atributosForm('editar', $id),
@@ -127,7 +29,7 @@ class Ctr_empresa extends BaseController{
             )
         ];
 
-        if($data["esConsedido"]->editar){
+        if($data["esConsedido"]->modificar){
             return view('html/empresa/editar', $data);
         }
 
@@ -156,22 +58,22 @@ class Ctr_empresa extends BaseController{
                 'title' => '',
                 'requerido' => true
             ),
-            array(
-                'name' => 'logo',
-                'type' => 'hidden',
-                'value' => "logo-cr-svg-blanco.svg?v=1",
-                'max' => 100,
-                'title' => '',
-                'requerido' => true
-            ),
+            // array(
+            //     'name' => 'logo',
+            //     'type' => 'hidden',
+            //     'value' => "logo-cr-svg-blanco.svg?v=1",
+            //     'max' => 100,
+            //     'title' => '',
+            //     'requerido' => true
+            // ),
             array(
                 'name' => 'nombre',
                 'type' => 'textAndNumber',
                 'column' => 'col-md-12',
                 'value' => ($action == 'editar'? $data['nombre']:''),
                 'max' => 100,
-                'title' => 'Escribe sus nombre',
-                'placeholder' => 'Escribe sus nombre',
+                'title' => 'Nombre de la empresa',
+                'placeholder' => 'Nombre de la empresa',
                 'requerido' => true
             ),
             array(
@@ -180,7 +82,7 @@ class Ctr_empresa extends BaseController{
                 'column' => 'col-md-12',
                 'value' => ($action == 'editar'?$data['direccion']:''),
                 'max' => 100,
-                'title' => 'Dirección',
+                'title' => 'Dirección de la empresa',
                 'placeholder' => 'Dirección',
                 'requerido' => true
             ),
@@ -190,39 +92,39 @@ class Ctr_empresa extends BaseController{
             //     'column' => 'col-md-12',
             //     'value' => ($action == 'editar'?$data['logo']:''),
             //     'max' => 100,
-            //     'title' => 'Logo',
+            //     'title' => 'Logo de la empresa',
             //     'placeholder' => 'Logo',
             //     'accept' => 'image/*',
             //     'max_files' => 1,
             //     'multiple' => false,
             //     'requerido' => true
             // ),
-            array(
-                'name' => 'estado',
-                'title' => 'Estado del empresa',
-                'requerido' => true,
-                'type' => 'select', //num
-                'option' => array(
-                    array(
-                        'value' => '1',
-                        'text' => 'Activo',
-                        'selected' => ($action == 'editar'?($data['estado']=='1'?true:false):''),
-                        'attr' => array(
-                            'text' => 's',
-                            'value' => '3'
-                        )
-                    ),
-                    array(
-                        'value' => '0',
-                        'text' => 'Inactivo',
-                        'selected' => ($action == 'editar'?($data['estado']=='0'?true:false):''),
-                        'attr' => array(
-                            'text' => '3',
-                            'value' => '3'
-                        )
-                    )
-                )
-            ),
+            // array(
+            //     'name' => 'estado',
+            //     'title' => 'Estado del empresa',
+            //     'requerido' => true,
+            //     'type' => 'select', //num
+            //     'option' => array(
+            //         array(
+            //             'value' => '1',
+            //             'text' => 'Activo',
+            //             'selected' => ($action == 'editar'?($data['estado']=='1'?true:false):''),
+            //             'attr' => array(
+            //                 'text' => 's',
+            //                 'value' => '3'
+            //             )
+            //         ),
+            //         array(
+            //             'value' => '0',
+            //             'text' => 'Inactivo',
+            //             'selected' => ($action == 'editar'?($data['estado']=='0'?true:false):''),
+            //             'attr' => array(
+            //                 'text' => '3',
+            //                 'value' => '3'
+            //             )
+            //         )
+            //     )
+            // ),
         );
 
         return excluirCR($atributosLista, $listaExcluir);
@@ -235,7 +137,7 @@ class Ctr_empresa extends BaseController{
         if($post->action == 'add' || $post->action == 'edit') $data = $this->editarArray($post);
         switch ($post->action) {
             case 'list':
-                return $this->listar();
+                // return $this->listar();
                 break;
             case 'del':
                 return $this->response->setJSON( [
@@ -266,25 +168,6 @@ class Ctr_empresa extends BaseController{
             default:
                 $this->response->setStatusCode(404, 'Error con la petición');
                 break;
-        }
-    }
-
-    public function correo() {
-        $post = (object) $this->request->getGetPost();
-        $ins = new Empresa();
-        if ($post->id == '0') {
-            echo json_encode(array('valid' => !$ins->existe($ins->table, strtoupper($post->correo), 'correo')));
-            exit();
-        } else {
-            echo json_encode(array('valid' => !$ins->existe_editar(
-                $ins->table,
-                $ins->primaryKey,
-                $post->id,
-                array(
-                    'correo'=> strtoupper($post->correo)
-                )
-            )));
-            exit();
         }
     }
 
@@ -350,7 +233,7 @@ class Ctr_empresa extends BaseController{
         // Construcción segura de la consulta
         $builder = $modelLocal->builder();
         
-        $builder->select("CONCAT(nombre) AS nombre, idempresa, logo")
+        $builder->select("CONCAT(nombre) AS nombre, idempresa as id, logo")
                 ->where('deleted_at', null);  // <- Aquí el filtro de soft delete
     
         if (!empty($searchTerm)) {
@@ -384,10 +267,10 @@ class Ctr_empresa extends BaseController{
         $fecha = date('Y-m-d', time());
         $hora = date("H:m:s", time());
         $data = array(
-            'nombre'    => strtoupper($post->nombre),
-            'direccion' => strtoupper($post->direccion),
-            'logo'      => strtolower($post->logo),
-            'estado'    => strtoupper($post->estado)
+            'nombre'    => ($post->nombre),
+            'direccion' => ($post->direccion),
+            // 'logo'      => strtolower($post->logo),
+            'estado'    => 1
         );
         if($post->action == 'add'){
             $data['created_at'] = date('Y-m-d H:m:s', time());

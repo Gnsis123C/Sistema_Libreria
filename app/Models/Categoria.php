@@ -14,7 +14,7 @@ class Categoria extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['idcategoria','idempresa','nombre','estado'];
+    protected $allowedFields    = ['idcategoria','nombre','estado'];
 
     // Dates
     protected $updateDate = true;
@@ -46,7 +46,7 @@ class Categoria extends Model
             $db = db_connect();
             $query = $db->query('SELECT * FROM '.$tabla.' WHERE '.$text.' = "'.$name.'"');
             return (count($query->getResult('array')) > 0) ? true : false;
-        } catch (Exception $ex) {
+        } catch (\Exception $ex) {
             return $ex->getMessage();
         }
     }

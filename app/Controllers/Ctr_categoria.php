@@ -6,16 +6,15 @@ use App\Models\Empresa;
 use Irsyadulibad\DataTables\DataTables;
 
 class Ctr_categoria extends BaseController{
+    private $pagina = 'categoria';
     public function index(){
         $ins = new Categoria();
         $data = [
             'data_accessos' => [],
-            'esConsedido'   => (object)[
-                "ver" => true
-            ],
+            'esConsedido'   => (object)esConsedido($this->pagina),
             'registros_no_eliminados'   =>  $ins->countActive(),
             'registros_eliminados'   =>  $ins->countDelete(),
-            'titulo'   =>  'Listado de categoria',
+            'titulo'   =>  'Listado de datos',
             'pagina'    =>  'categoria',
             'breadcrumb' => array(
                 array(
@@ -29,7 +28,7 @@ class Ctr_categoria extends BaseController{
             )
         ];
 
-        if($data["esConsedido"]->ver){
+        if($data["esConsedido"]->leer){
             return view('html/categoria/index', $data);
         }
 
@@ -41,9 +40,9 @@ class Ctr_categoria extends BaseController{
 
     private function listar(){
         if ($this->request->isAJAX()) {
+            $btn_acciones_list = getDisabledBtnAction($this->pagina);
             $table = db_connect()->table('categoria');
-            $datatable = $table->select('categoria.*, CONCAT(empresa.nombre) as empresa');
-            $datatable->join('empresa', 'categoria.idempresa = empresa.idempresa');
+            $datatable = $table->select('categoria.*');
 
             if($this->request->getGetPost()['eliminado'] == '1'){
                 $datatable->where('categoria.deleted_at <>' , null);
@@ -56,8 +55,8 @@ class Ctr_categoria extends BaseController{
             }else{
                 $datatable->where('categoria.deleted_at' , null);
                 return datatables($datatable)
-                    ->addColumn('accion', function($data) {
-                        return btn_acciones(['all'] , base_url(route_to('categoria.editar', $data->idcategoria)), $data->idcategoria);
+                    ->addColumn('accion', function($data) use ($btn_acciones_list) {
+                        return btn_acciones($btn_acciones_list , base_url(route_to('categoria.editar', $data->idcategoria)), $data->idcategoria);
                     })
                     ->editColumn('estado', function($value, $data) {
                         return '<a title="Cambiar estado" class="btn btn-link btn-sm text-'.($value=='1'?'success':'warning').'" data-action="estado" data-estado="'.$value.'" data-id="'.$data->idcategoria.'" href="#">'.($value=='1'?'<i class="bi bi-toggle-on fs-4"></i>':'<i class="bi bi-toggle-off fs-4"></i>').'</a>';
@@ -73,11 +72,9 @@ class Ctr_categoria extends BaseController{
     public function crear(){
         $data = [
             'data_accessos' => [],
-            'esConsedido'   => (object)[
-                "crear" => true
-            ],
+            'esConsedido'   => (object)esConsedido($this->pagina),
             'titulo'   =>  'Crear registro',
-            'pagina'    =>  'categoria.crear',
+            'pagina'    =>  'categoria',
             'action'    =>  'add',
             'attrform' => $this->atributosForm('crear', 0),
             'breadcrumb' => array(
@@ -109,11 +106,9 @@ class Ctr_categoria extends BaseController{
     public function editar($id){
         $data = [
             'data_accessos' => [],
-            'esConsedido'   => (object)[
-                "editar" => true
-            ],
+            'esConsedido'   => (object)esConsedido($this->pagina),
             'titulo'   =>  'Editar registro',
-            'pagina'    =>  'categoria.editar',
+            'pagina'    =>  'categoria',
             'action'    =>  'edit',
             'id'        =>  'idcategoria',
             'attrform' => $this->atributosForm('editar', $id),
@@ -129,7 +124,7 @@ class Ctr_categoria extends BaseController{
             )
         ];
 
-        if($data["esConsedido"]->editar){
+        if($data["esConsedido"]->modificar){
             return view('html/categoria/editar', $data);
         }
 
@@ -149,15 +144,6 @@ class Ctr_categoria extends BaseController{
         $categoria = new Categoria();
         if($action == 'editar'){
             $data = $categoria->find($id);
-            $getEmpresa = new Empresa();
-            $getEmpresa = (new Empresa())->find($data['idempresa']);
-            if($getEmpresa){
-                $empresa = [
-                    "id" => $getEmpresa['idempresa'],
-                    "text" => "#" . str_pad($getEmpresa['idempresa'], 4, "0", STR_PAD_LEFT) . " - " . $getEmpresa['nombre']
-                ];
-            }
-            
             /*if($id == '1' || $id == '2'){
                 $listaExcluir = ['nombre'];
             }*/
@@ -171,32 +157,32 @@ class Ctr_categoria extends BaseController{
                 'title' => '',
                 'requerido' => true
             ),
-            array(
-                'name' => 'idempresa',
-                'url' => base_url(route_to('empresa')),
-                'url_select' => base_url(route_to('empresa.select')),
-                'theme' => 'bootstrap4',
-                'results' => array(
-                    'id'  =>  'idempresa',
-                    'text'  =>  'nombre' 
-                ),
-                'option' => array(
-                    array(
-                        'value' => ($action == 'editar'? $empresa['id']:''),
-                        'text' => ($action == 'editar'? $empresa['text']:''),
-                        'selected' => true,
-                        'attr' => array(
-                            'text' => '',
-                            'value' => ''
-                        )
-                    )
-                ),
-                'title' => 'Seleccionar empresa',
-                'requerido' => true,
-                'type' => 'selectajax',
-                'per_page' => 10,
-                'column' => 'col-md-12',
-            ),
+            // array(
+            //     'name' => 'idempresa',
+            //     'url' => base_url(route_to('empresa')),
+            //     'url_select' => base_url(route_to('empresa.select')),
+            //     'theme' => 'bootstrap4',
+            //     'results' => array(
+            //         'id'  =>  'idempresa',
+            //         'text'  =>  'nombre' 
+            //     ),
+            //     'option' => array(
+            //         array(
+            //             'value' => ($action == 'editar'? $empresa['id']:''),
+            //             'text' => ($action == 'editar'? $empresa['text']:''),
+            //             'selected' => true,
+            //             'attr' => array(
+            //                 'text' => '',
+            //                 'value' => ''
+            //             )
+            //         )
+            //     ),
+            //     'title' => 'Seleccionar empresa',
+            //     'requerido' => true,
+            //     'type' => 'selectajax',
+            //     'per_page' => 10,
+            //     'column' => 'col-md-12',
+            // ),
             array(
                 'name' => 'nombre',
                 'type' => 'textAndNumber',
@@ -207,32 +193,32 @@ class Ctr_categoria extends BaseController{
                 'placeholder' => 'Escribe sus nombres',
                 'requerido' => true
             ),
-            array(
-                'name' => 'estado',
-                'title' => 'Estado del categoria',
-                'requerido' => true,
-                'type' => 'select', //num
-                'option' => array(
-                    array(
-                        'value' => '1',
-                        'text' => 'Activo',
-                        'selected' => ($action == 'editar'?($data['estado']=='1'?true:false):''),
-                        'attr' => array(
-                            'text' => 's',
-                            'value' => '3'
-                        )
-                    ),
-                    array(
-                        'value' => '0',
-                        'text' => 'Inactivo',
-                        'selected' => ($action == 'editar'?($data['estado']=='0'?true:false):''),
-                        'attr' => array(
-                            'text' => '3',
-                            'value' => '3'
-                        )
-                    )
-                )
-            ),
+            // array(
+            //     'name' => 'estado',
+            //     'title' => 'Estado del categoria',
+            //     'requerido' => true,
+            //     'type' => 'select', //num
+            //     'option' => array(
+            //         array(
+            //             'value' => '1',
+            //             'text' => 'Activo',
+            //             'selected' => ($action == 'editar'?($data['estado']=='1'?true:false):''),
+            //             'attr' => array(
+            //                 'text' => 's',
+            //                 'value' => '3'
+            //             )
+            //         ),
+            //         array(
+            //             'value' => '0',
+            //             'text' => 'Inactivo',
+            //             'selected' => ($action == 'editar'?($data['estado']=='0'?true:false):''),
+            //             'attr' => array(
+            //                 'text' => '3',
+            //                 'value' => '3'
+            //             )
+            //         )
+            //     )
+            // ),
         );
 
         return excluirCR($atributosLista, $listaExcluir);
@@ -395,9 +381,9 @@ class Ctr_categoria extends BaseController{
         $fecha = date('Y-m-d', time());
         $hora = date("H:m:s", time());
         $data = array(
-            'idempresa' => strtoupper($post->idempresa),
+            // 'idempresa' => strtoupper($post->idempresa),
             'nombre'    => strtoupper($post->nombre),
-            'estado'    => strtoupper($post->estado)
+            // 'estado'    => strtoupper($post->estado)
         );
         if($post->action == 'add'){
             $data['created_at'] = date('Y-m-d H:m:s', time());

@@ -6,13 +6,13 @@ use App\Models\Rol;
 use Irsyadulibad\DataTables\DataTables;
 
 class Ctr_usuario extends BaseController{
+    private $pagina = 'usuario';
+
     public function index(){
         $ins = new Usuario();
         $data = [
             'data_accessos' => [],
-            'esConsedido'   => (object)[
-                "ver" => true
-            ],
+            'esConsedido'   => (object)esConsedido($this->pagina),
             'registros_no_eliminados'   =>  $ins->countActive(),
             'registros_eliminados'   =>  $ins->countDelete(),
             'titulo'   =>  'Usuario y asignación de roles',
@@ -29,7 +29,7 @@ class Ctr_usuario extends BaseController{
             )
         ];
 
-        if($data["esConsedido"]->ver){
+        if($data["esConsedido"]->leer){
             return view('html/usuario/index', $data);
         }
 
@@ -42,6 +42,7 @@ class Ctr_usuario extends BaseController{
     // Tabla de usuarios
     private function listar(){
         if ($this->request->isAJAX()) {
+            $btn_acciones_list = getDisabledBtnAction($this->pagina);
             $table = db_connect()->table('usuario');
             $datatable = $table
                 ->select('usuario.*, concat(rol.nombre) as nombre_rol')
@@ -64,10 +65,10 @@ class Ctr_usuario extends BaseController{
                     $datatable->where('usuario.idrol', $this->request->getGetPost()['idrol']);
                 }
                 return datatables($datatable)
-                    ->addColumn('accion', function($data) {
+                    ->addColumn('accion', function($data) use ($btn_acciones_list) {
                         $disabled = [1];
                         return btn_acciones(
-                            ['all'] , 
+                            $btn_acciones_list , 
                             base_url(route_to('usuario.editar', $data->idusuario)), 
                             $data->idusuario, 
                             in_array($data->idusuario, $disabled) ? 'disabled':'',
@@ -97,9 +98,7 @@ class Ctr_usuario extends BaseController{
     public function crear(){
         $data = [
             'data_accessos' => [],
-            'esConsedido'   => (object)[
-                "crear" => true
-            ],
+            'esConsedido'   => (object)esConsedido($this->pagina),
             'titulo'   =>  'Crear usuario',
             'subtitulo'   =>  'Nuevo registro de usuario',
             'pagina'    =>  'usuario.crear',
@@ -135,9 +134,7 @@ class Ctr_usuario extends BaseController{
     public function editar($id){
         $data = [
             'data_accessos' => [],
-            'esConsedido'   => (object)[
-                "editar" => true
-            ],
+            'esConsedido'   => (object)esConsedido($this->pagina),
             'titulo'   =>  'Editar usuario',
             'pagina'    =>  'usuario.editar',
             'action'    =>  'edit',
@@ -159,7 +156,7 @@ class Ctr_usuario extends BaseController{
             )
         ];
 
-        if($data["esConsedido"]->editar){
+        if($data["esConsedido"]->modificar){
             return view('html/usuario/editar', $data);
         }
 

@@ -1,62 +1,217 @@
 <?php
-function esConsedido($data, $url) {
-	$CI =& get_instance();
+use Config\Database;
+
+function esConsedido($pagina = "") {
+	$idusuario = session('usuario')["idusuario"];
+	if($idusuario == 1) return array(
+		'modulo'	=> "all",
+		'crear'		=>'1',
+		'leer'		=>'1',
+		'modificar'	=>'1',
+		'eliminar'	=>'1',
+	);
+
+	$db = Database::connect();
+	$builder = $db->table('detalle_rol');
+	$builder->select('detalle_rol.*');
+	$builder->join('usuario','usuario.idrol=detalle_rol.idrol');
+	$builder->join('pagina','pagina.idpagina=detalle_rol.idpagina');
+	$builder->where('usuario.idusuario', $idusuario);
+	$builder->where('pagina.nombre', $pagina);
+	$query = $builder->get();
+	if($query->getNumRows() < 1) return array(
+		'modulo'	=> "none",
+		'crear'		=>'0',
+		'leer'		=>'0',
+		'modificar'	=>'0',
+		'eliminar'	=>'0',
+	);
+
+	$data = $query->getRow() ?? [];
     // We need to use $CI->session instead of $this->session
-    $user = $CI->session->userdata('login');
-	if ($user->idlogin!='1') {
-		foreach ($data as $x):
-			if($x->url==$url){
-				return $x;
-			}
-		endforeach;
-		if($url!='menu'){
-			show_404();
-		}
-	} else { 
-		$list = array(
-			'iddetalleroles'=>'all',
-			'url'=> $url,
-			'idpagina'=>'all',
-			'idgrupo'=>'all',
-			'editar'=>'1',
-			'crear'=>'1',
-			'eliminar'=>'1',
-			'listar'=>'1'
-		); 
-		return (object) $list;
-	}
+    return array(
+		'modulo'	=> $pagina,
+		'crear'		=> $data->crear,
+		'leer'		=> $data->leer,
+		'modificar'	=> $data->editar,
+		'eliminar'	=> $data->eliminar,
+	);
 }
 
-function esVisible($data, $url) {
-	$CI =& get_instance();
-    // We need to use $CI->session instead of $this->session
-    $user = $CI->session->userdata('login');
-	if ($user->idlogin!='1') { 
-		foreach ($data as $x):
-			if($x->url==$url){
-				if($x->listar==1){
-					return 'style="display:block"';
-				}else{
-					return 'style="display:none"';
-				}
-			}
-		endforeach;
-	} else {
-		return 'style="display:block"';
-	}
-}
+function getMenu($pagina = '') {
+	$idusuario = session('usuario')["idusuario"];
+	$acceso_menu = ['inicio', 'empresa', 'usuario','categoria','rol'];
+	if($idusuario == 1) {
+		$db = Database::connect();
+		$builder = $db->table('detalle_rol');
+		$builder->select('pagina.nombre');
+		$builder->join('usuario','usuario.idrol=detalle_rol.idrol');
+		$builder->join('pagina','pagina.idpagina=detalle_rol.idpagina');
+		$builder->where('usuario.idusuario', $idusuario);
+		$builder->where('detalle_rol.leer', 1);
+		$query = $builder->get();
+		if($query->getNumRows() < 1) return array(
+			'modulo'	=> "none",
+			'crear'		=>'0',
+			'leer'		=>'0',
+			'modificar'	=>'0',
+			'eliminar'	=>'0',
+		);
 
-if ( ! function_exists('excluirCR()')){
-	function excluirCR($data, $excluir){
-		for ($i=0; $i < count($data); $i++) { 
-            for ($j=0; $j < count($excluir) ; $j++) { 
-                if($data[$i]['name']==$excluir[$j]){
-                    \array_splice($data, $i, 1);
-                }
+		$data = $query->getResult('array') ?? [];
+
+		$acceso_menu = array_map(function($item) {
+			return strtolower($item['nombre']);
+		}, $data);
+		$acceso_menu[] = 'inicio'; // Asegurar que 'inicio' siempre esté presente
+	}
+
+	$menu = [
+		[
+			'tipo' => '',
+			'tipo_text' => '',
+			'data' => [
+				[
+					'titulo' 	=> 'Inicio',
+					'link' 		=> base_url(route_to('inicio')),
+					'icon' 		=> 'home-2',
+					'active' 	=> false,
+					'pagina' 	=> 'inicio',
+				]
+			]
+		],
+		[
+			'tipo' => '',
+			'tipo_text' => '',
+			'data' => [
+				[
+					'titulo' => 'Empresa',
+					'link' => base_url(route_to('empresa')),
+					'icon' => 'buildings-1',
+					'active' 	=> false,
+					'pagina' 	=> 'empresa',
+				]
+			]
+		],
+		[
+			'tipo' => '',
+			'tipo_text' => '',
+			'data' => [
+				[
+					'titulo' => 'Usuarios',
+					'link' => base_url(route_to('usuario')),
+					'icon' => 'user-multiple-4',
+					'active' 	=> false,
+					'pagina' 	=> 'usuario',
+				]
+			]
+		],
+		[
+			'tipo' => '',
+			'tipo_text' => '',
+			'data' => [
+				[
+					'titulo' => 'Roles y accesos',
+					'link' => base_url(route_to('rol')),
+					'icon' => 'gear-1',
+					'active' 	=> false,
+					'pagina' 	=> 'rol',
+				]
+			]
+		],
+		[
+			'tipo' => 'header',
+			'tipo_text' => 'Admin. Productos',
+			'tipo_text_title' => 'Administración de productos',
+			'data' => [
+				[
+					'titulo' => 'Categoría',
+					'link' => base_url(route_to('categoria')),
+					'icon' => 'brush-1-rotated',
+					'active' 	=> false,
+					'pagina' 	=> 'categoria',
+				],
+				
+			]
+		]
+	];
+
+	$menu_filtrado = [];
+
+    foreach ($menu as $bloque) {
+        $data_filtrada = [];
+
+        foreach ($bloque['data'] as $item) {
+            // ✅ Marcar activo si coincide la página
+            if ($item['pagina'] === $pagina) {
+                $item['active'] = true;
+            }
+
+            // ✅ Filtrar por acceso_menu (si se pasó)
+            if (empty($acceso_menu) || in_array($item['pagina'], $acceso_menu)) {
+                $data_filtrada[] = $item;
             }
         }
-        return $data;
+
+        // ✅ Solo agregar bloques que aún tengan data
+        if (!empty($data_filtrada)) {
+            $bloque['data'] = $data_filtrada;
+            $menu_filtrado[] = $bloque;
+        }
+    }
+
+    return $menu_filtrado;
+}
+
+function getDisabledBtnAction($opcion_menu = ""){
+	$permisos = esConsedido($opcion_menu);
+	$accesos = [];
+	$countAcceso = 0;
+	if($permisos['modificar'] == '1'){
+		$accesos[] = 'editar';
+		$countAcceso++;
 	}
+
+	if($permisos['eliminar'] == '1'){
+		$accesos[] = 'elim';
+		$countAcceso++;
+	}
+
+	return $countAcceso == 2 ? ['all'] : $accesos;
+}
+	
+if (!function_exists('excluirCR')) {
+    function excluirCR($data, $excluir) {
+        // Validar que $data sea un array
+        if (!is_array($data)) {
+            return $data;
+        }
+        
+        // Validar que $excluir sea un array
+        if (!is_array($excluir)) {
+            return $data;
+        }
+        
+        // Si alguno de los arrays está vacío, retornar el original
+        if (empty($data) || empty($excluir)) {
+            return $data;
+        }
+        
+        // Recorrer de atrás hacia adelante para evitar problemas con índices al eliminar
+        for ($i = count($data) - 1; $i >= 0; $i--) {
+            // Verificar que el elemento tenga la clave 'name'
+            if (!isset($data[$i]['name'])) {
+                continue;
+            }
+            
+            // Verificar si el nombre está en la lista de exclusión
+            if (in_array($data[$i]['name'], $excluir, true)) {
+                array_splice($data, $i, 1);
+            }
+        }
+        
+        return $data;
+    }
 }
 
 if ( ! function_exists('slugify_()')){
@@ -183,8 +338,6 @@ if ( ! function_exists('btn_acciones()')){
         return $html;
 	}
 }
-
-
 
 if ( ! function_exists('list_tipo_usuario()')){
 	function list_tipo_usuario($id = ''){

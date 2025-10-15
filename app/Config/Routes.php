@@ -36,6 +36,19 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
             $routes->post('rol/', 'Ctr_rol::action', ['as'=>'rol.actions']);
             $routes->post('rol/select/', 'Ctr_rol::selectBD', ['as'=>'rol.select']);
             $routes->get('rol/validar/nombre/', 'Ctr_rol::nombre', ['as'=>'rol.validar.nombre']);
+
+            //EMPRESA
+            $routes->get('empresa/', 'Ctr_empresa::index', ['as'=>'empresa']);
+            $routes->post('empresa/', 'Ctr_empresa::action', ['as'=>'empresa.actions']);
+            $routes->post('empresa/select/', 'Ctr_empresa::selectBD', ['as'=>'empresa.select']);
+
+            //CATEGORIAS
+            $routes->get('categoria/', 'Ctr_categoria::index', ['as'=>'categoria']);
+            $routes->get('categoria/add/', 'Ctr_categoria::crear', ['as'=>'categoria.crear']);
+            $routes->get('categoria/edit/(:num)', 'Ctr_categoria::editar/$1', ['as'=>'categoria.editar']);
+            $routes->post('categoria/', 'Ctr_categoria::action', ['as'=>'categoria.actions']);
+            $routes->post('categoria/select/', 'Ctr_categoria::selectBD', ['as'=>'categoria.select']);
+            $routes->get('categoria/validar/nombre/', 'Ctr_categoria::nombre', ['as'=>'categoria.validar.nombre']);
         });
     });
 });
