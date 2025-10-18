@@ -51,6 +51,14 @@ class Ctr_empresa extends BaseController{
         }
         $atributosLista = array(
             array(
+                'name' => 'change_logo',
+                'type' => 'hidden',
+                'value' => '01',
+                'max' => 2,
+                'title' => '',
+                'requerido' => true
+            ),
+            array(
                 'name' => 'id',
                 'type' => 'hidden',
                 'value' => ($action == 'editar'?$id:''),
@@ -86,19 +94,29 @@ class Ctr_empresa extends BaseController{
                 'placeholder' => 'Dirección',
                 'requerido' => true
             ),
-            // array(
-            //     'name' => 'logo',
-            //     'type' => 'file',
-            //     'column' => 'col-md-12',
-            //     'value' => ($action == 'editar'?$data['logo']:''),
-            //     'max' => 100,
-            //     'title' => 'Logo de la empresa',
-            //     'placeholder' => 'Logo',
-            //     'accept' => 'image/*',
-            //     'max_files' => 1,
-            //     'multiple' => false,
-            //     'requerido' => true
-            // ),
+            array(
+                'name' => 'ruc',
+                'type' => 'number',
+                'column' => 'col-md-12',
+                'value' => ($action == 'editar'?$data['ruc']:''),
+                'max' => 13,
+                'title' => 'RUC de la empresa',
+                'placeholder' => 'RUC',
+                'requerido' => true
+            ),
+            array(
+                'name' => 'logo',
+                'type' => 'file',
+                'column' => 'col-md-12',
+                'value' => ($action == 'editar'?$data['logo']:''),
+                'max' => 100,
+                'title' => 'Logo de la empresa',
+                'placeholder' => 'Logo',
+                'accept' => 'image/*',
+                'max_files' => 1,
+                'multiple' => false,
+                'requerido' => true
+            ),
             // array(
             //     'name' => 'estado',
             //     'title' => 'Estado del empresa',
@@ -134,7 +152,7 @@ class Ctr_empresa extends BaseController{
     public function action() {
         $post = (object) $this->request->getGetPost();
         $data = [];
-        if($post->action == 'add' || $post->action == 'edit') $data = $this->editarArray($post);
+        if($post->action == 'add' || $post->action == 'edit') $data = $this->editarArray($post, $this->request);
         switch ($post->action) {
             case 'list':
                 // return $this->listar();
@@ -184,8 +202,12 @@ class Ctr_empresa extends BaseController{
 
     private function edit($id, $data){
         if ($this->request->isAJAX()) {
+            $session = session();
             $ins = new Empresa();
-            return $ins->update($id, $data);
+            $ins->update($id, $data);
+            $empresa = $ins->where('idempresa',strtolower($session->empresa['idempresa']))->first();
+            $session->set('empresa', $empresa);
+            return true;
         }else{
             $this->response->setStatusCode(404, 'Error con la petición');
         }
@@ -260,8 +282,63 @@ class Ctr_empresa extends BaseController{
             'page' => $page
         ]);
     }
+    
+    private function slugify($text, string $divider = '-'){
+        // replace non letter or digits by divider
+        $text = preg_replace('~[^\pL\d]+~u', $divider, $text);
+        // transliterate
+        $text = iconv('utf-8', 'us-ascii//TRANSLIT', $text);
+        // remove unwanted characters
+        $text = preg_replace('~[^-\w]+~', '', $text);
+        // trim
+        $text = trim($text, $divider);
+        // remove duplicate divider
+        $text = preg_replace('~-+~', $divider, $text);
+        // lowercase
+        $text = strtolower($text);
+        if (empty($text)) {
+            return 'n-a';
+        }
+        return $text;
+    }
 
-    private function editarArray($post) {
+    private function uploadImage($post){
+        $imageFile = $post->getFile('logo');
+
+        if ($imageFile && $imageFile->isValid()) {
+            $mimeType = $imageFile->getClientMimeType();
+            $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+            if (!in_array($mimeType, $allowedMimeTypes)) {
+                return ['resp' => false, 'message' => 'Solo se permiten imágenes JPG, PNG o WEBP'];
+            }
+
+            $newName = pathinfo($imageFile->getName(), PATHINFO_FILENAME) . '_' . uniqid() . '.png';
+            $anio = date('Y');
+            $mes = date('m');
+            $dia = date('d');
+            $folder = $anio . '/' . $mes . '/' . $dia . '/';
+            $uploadPath = './uploads/' . $folder;
+
+            // Asegúrate de que el directorio exista
+            if (!is_dir($uploadPath)) {
+                mkdir($uploadPath, 0755, true);
+            }
+
+            $finalPath = $uploadPath . $newName;
+            // Mover primero el archivo
+            if ($imageFile->move($uploadPath, $newName)) {
+                $finalURLTrans = 'uploads/' . $folder . $newName;
+                return ['resp' => true, 'imageUrl' => $finalURLTrans];
+            } else {
+                return ['resp' => false, 'message' => 'Error al mover la imagen'];
+            }
+        }
+
+        return ['resp' => false, 'message' => 'No se proporcionó una imagen válida'];
+    }
+
+    private function editarArray($post, $request) {
         date_default_timezone_set('America/Guayaquil');
         setlocale(LC_ALL, 'es_ES');
         $fecha = date('Y-m-d', time());
@@ -269,9 +346,20 @@ class Ctr_empresa extends BaseController{
         $data = array(
             'nombre'    => ($post->nombre),
             'direccion' => ($post->direccion),
+            'ruc' => ($post->ruc),
             // 'logo'      => strtolower($post->logo),
             'estado'    => 1
         );
+
+        if($post->change_logo == '1'){
+            $image = $this->uploadImage($request);
+            if($image['resp']){
+                $data['logo'] = $image['imageUrl'];
+            }else{
+                return ["resp" => false, "message" => "Error al subir la imagen"];
+            }
+        }
+
         if($post->action == 'add'){
             $data['created_at'] = date('Y-m-d H:m:s', time());
         }

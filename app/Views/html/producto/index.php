@@ -1,97 +1,117 @@
 <?= $this->extend('plantilla/layout') ?>
 
-<?= $this->section('titulo') ?> 
-    <?= $pagina ?> | <?= $titulo ?> <?= json_encode(session('usuario')['usuario']) ?>
+<?= $this->section('titulo') ?>
+<?= $titulo ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('css') ?>
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.4/css/responsive.bootstrap5.css">
-    
-    <link rel="stylesheet" type="text/css" href="<?= base_url() ?>/assets/plugins/lightbox2/css/lightbox.css" /> 
-    <style type="text/css">
-        .table.dataTable thead .sorting_desc,
-        .table.dataTable thead .sorting_asc,
-        .table.dataTable thead .sorting {
-          background: none;
-        }
-        .btn-action{
-            width: 12%;
-            text-align: center;
-        }
-        .dataTables_wrapper .dataTables_paginate .paginate_button {
-            padding: 0px !important;
-            border: 0px !important;
-        }
-        .gradeA.estado{
-            min-width: 65px!important;
-            width: 65px!important;
-        }
-        .img-producto img{
-            object-fit: contain;
-        }
-    </style> 
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.4/css/responsive.bootstrap5.css">
+<style>
+    #listartable {
+        border: 1px solid #dee2e6;
+    }
+
+    #listartable th,
+    #listartable td {
+        border: 1px solid #dee2e6;
+    }
+
+    .class-tipo {
+        max-width: 160px;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--accent-green);
+        border-color: var(--accent-green);
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: var(--light-gray);
+    }
+
+    #permisosModal .modal-header {
+        background-color: var(--dark-gray);
+        color: white;
+    }
+
+    #permisosModal .modal-header .btn-close {
+        filter: invert(1);
+    }
+
+    .module-name {
+        font-weight: 600;
+        color: var(--dark-gray);
+    }
+
+    .permission-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    #permisosModal .modal-dialog {
+        max-width: 600px;
+    }
+</style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<div class="mb-4">
+  <h1 class="display-6 fw-bold mb-2 text-dark">
+    M. Atributos
+  </h1>
+</div>
 <!--begin::Row-->
 <div class="row">
-  <div class="col-12 px-0 px-sm-3">
-    <!-- Default box -->
-     <div class="d-flex justify-content-between mb-2">
-        <ul class="nav nav-pills">
-            <li class="nav-item">
-                <a class="nav-link <?= isset($_GET['papelera'])?'':'active' ?>" aria-current="page" href="<?= base_url(route_to('producto')) ?>">Registros (<?= $registros_no_eliminados ?>)</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= isset($_GET['papelera'])?'active':'' ?>" href="<?= base_url(route_to('producto')) ?>?papelera=1">Eliminados (<?= $registros_eliminados ?>)</a>
-            </li>
-        </ul>
-        <a class="btn btn-success" href="<?= base_url(route_to('producto.crear')) ?>">
-            <i class="bi bi-plus-lg"></i>
-            Crear Registro
-        </a>
+    <div class="col-12 px-0 px-sm-3">
+        <div class="mb-5">
+            <p class="text-muted h6 fw-light">
+                Gestión de productos para productos.
+            </p>
+        </div>
+        <!-- Tables Row -->
+        <div class="row g-4">
+            <div class="col-xl-12">
+                <div class="d-flex justify-content-between align-items-sm-end">
+                    <!-- Nav Tabs -->
+                    <ul class="nav nav-tabs border-bottom-0 d-none d-sm-flex">
+                        <li class="nav-item">
+                            <a class="nav-link <?= isset($_GET['papelera']) ? '' : 'active' ?>" aria-current="page" href="<?= base_url(route_to('producto')) ?>">
+                                Registros activos (<?= $registros_no_eliminados ?>)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?= !isset($_GET['papelera']) ? '' : 'active' ?>" href="<?= base_url(route_to('producto')) ?>?papelera=1">
+                                Registros eliminados (<?= $registros_eliminados ?>)
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Dropdown a la derecha -->
+                    <?php if ($esConsedido->crear): ?>
+                        <!-- Dropdown a la derecha -->
+                        <div class="dropdown ms-sm-auto mb-1">
+                            <a class="btn btn-success rounded-0" href="<?= base_url(route_to('producto.crear')) ?>">
+                                <i class="fas fa-plus"></i> Nuevo Registro
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="card rounded-0">
+                    <div class="card-body">
+                        <table id="listartable" style="width:100%" class="table table-striped table-bordered nowrap">
+                            <thead id="thead">
+                            </thead>
+                            <tbody id="tbody_">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card shadow-none">
-      <div class="card-header">
-        <h3 class="card-title">
-          Listado de <?= $titulo ?>
-        <!-- <div class="card-tools">
-          <button
-            type="button"
-            class="btn btn-tool"
-            data-lte-toggle="card-collapse"
-            title="Collapse"
-          >
-            <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
-            <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
-          </button>
-          <button
-            type="button"
-            class="btn btn-tool"
-            data-lte-toggle="card-remove"
-            title="Remove"
-          >
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </div> -->
-      </div>
-      <div class="card-body">
-        <table id="listartable" style="width:100%" class="table table-striped table-bordered nowrap">
-          <thead id="thead">
-          </thead>
-          <tbody id="tbody_">
-          </tbody>
-        </table>
-      </div>
-      <!-- /.card-body -->
-      <!-- <div class="card-footer">Footer</div> -->
-      <!-- /.card-footer-->
-    </div>
-    <!-- /.card -->
-  </div>
 </div>
-<!--end::Row-->
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
@@ -105,7 +125,7 @@
 <script type="text/javascript">
     var datatable;
     $(function(){
-        var column = ['Nombre','Empresa vinculado','Imagen','Categoría','Descripción','Estado'];
+        var column = ['Nombre','Imagen','Categoría','Descripción','Stock', 'Stock mínimo','Estado'];
         var dibujarColumn = '<tr>';
         for (var i in column) {
             dibujarColumn += '<th>' + column[i] + '</th>';
@@ -178,14 +198,6 @@
                         "orderable": true
                   },
                   { 
-                      "data": "empresa", "name":"empresa.nombre", "render": function (d, t, f) {
-                          return d;
-                      },
-                      sDefaultContent: "",
-                      className: 'gradeA',
-                      "orderable": true
-                  },
-                  { 
                       "data": "imagen", "name":"producto.imagen", "render": function (d, t, f) {
                             return d;
                         },
@@ -209,6 +221,22 @@
                         className: 'gradeA none', // Added 'none' class to hide in responsive mode
                         "orderable": true,
                         responsivePriority: 6 // Lower priority number means higher display priority
+                  },
+                  { 
+                      "data": "stock", "name":"producto.stock", "render": function (d, t, f) {
+                          return d;
+                      },
+                      sDefaultContent: "",
+                      className: 'gradeA',
+                      "orderable": true
+                  },
+                  { 
+                      "data": "stock_minimo", "name":"producto.stock_minimo", "render": function (d, t, f) {
+                          return d;
+                      },
+                      sDefaultContent: "",
+                      className: 'gradeA',
+                      "orderable": true
                   },
                   { 
                       "data": "estado", "name":"producto.estado", "render": function (d, t, f) {

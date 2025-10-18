@@ -14,7 +14,7 @@ class Producto extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['idproducto','idcategoria','idempresa','nombre','pvp','stock','imagen','descripcion','estado','tipo','idmarca','slug'];
+    protected $allowedFields    = ['idproducto','idcategoria','idempresa','codigo_barras','nombre','precio_venta','stock','stock_minimo','imagen','descripcion','estado','slug'];
 
     // Dates
     protected $updateDate = true;

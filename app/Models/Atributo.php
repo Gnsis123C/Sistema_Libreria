@@ -14,7 +14,7 @@ class Atributo extends Model
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['idatributo','nombre','estado','idempresa'];
+    protected $allowedFields    = ['idatributo','nombre','estado'];
 
     // Dates
     protected $updateDate = true;

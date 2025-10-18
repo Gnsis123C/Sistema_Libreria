@@ -87,12 +87,14 @@
                         </li>
                     </ul>
 
-                    <!-- Dropdown a la derecha -->
-                    <div class="dropdown ms-sm-auto mb-1">
-                        <a class="btn btn-success rounded-0" href="<?= base_url(route_to('usuario.crear')) ?>">
-                            <i class="fas fa-plus"></i> Nuevo Registro
-                        </a>
-                    </div>
+                    <?php if ($esConsedido->crear): ?>
+                        <!-- Dropdown a la derecha -->
+                        <div class="dropdown ms-sm-auto mb-1">
+                            <a class="btn btn-success rounded-0" href="<?= base_url(route_to('usuario.crear')) ?>">
+                                <i class="fas fa-plus"></i> Nuevo Registro
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
                 <div class="card rounded-0">

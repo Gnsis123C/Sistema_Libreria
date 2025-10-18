@@ -40,8 +40,8 @@ function esConsedido($pagina = "") {
 
 function getMenu($pagina = '') {
 	$idusuario = session('usuario')["idusuario"];
-	$acceso_menu = ['inicio', 'empresa', 'usuario','categoria','rol'];
-	if($idusuario == 1) {
+	$acceso_menu = ['inicio', 'empresa', 'usuario','categoria','rol','atributo','cliente','proveedor','producto'];
+	if($idusuario != 1) {
 		$db = Database::connect();
 		$builder = $db->table('detalle_rol');
 		$builder->select('pagina.nombre');
@@ -121,6 +121,34 @@ function getMenu($pagina = '') {
 		],
 		[
 			'tipo' => 'header',
+			'tipo_text' => 'Admin. Ventas',
+			'tipo_text_title' => 'Administración de ventas',
+			'data' => [
+				[
+					'titulo' => 'Clientes',
+					'link' => base_url(route_to('persona','cliente')),
+					'icon' => 'user-multiple-4',
+					'active' 	=> false,
+					'pagina' 	=> 'cliente',
+				]
+			]
+		],
+		[
+			'tipo' => 'header',
+			'tipo_text' => 'Admin. Compras',
+			'tipo_text_title' => 'Administración de compras',
+			'data' => [
+				[
+					'titulo' => 'Proveedores',
+					'link' => base_url(route_to('persona','proveedor')),
+					'icon' => 'user-multiple-4',
+					'active' 	=> false,
+					'pagina' 	=> 'proveedor',
+				]
+			]
+		],
+		[
+			'tipo' => 'header',
 			'tipo_text' => 'Admin. Productos',
 			'tipo_text_title' => 'Administración de productos',
 			'data' => [
@@ -131,7 +159,20 @@ function getMenu($pagina = '') {
 					'active' 	=> false,
 					'pagina' 	=> 'categoria',
 				],
-				
+				[
+					'titulo' => 'Atributos',
+					'link' => base_url(route_to('atributo')),
+					'icon' => 'brush-1-rotated',
+					'active' 	=> false,
+					'pagina' 	=> 'atributo',
+				],
+				[
+					'titulo' => 'Productos',
+					'link' => base_url(route_to('producto')),
+					'icon' => 'layers-1',
+					'active' 	=> false,
+					'pagina' 	=> 'producto',
+				],
 			]
 		]
 	];

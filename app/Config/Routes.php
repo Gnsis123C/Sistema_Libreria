@@ -49,6 +49,36 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
             $routes->post('categoria/', 'Ctr_categoria::action', ['as'=>'categoria.actions']);
             $routes->post('categoria/select/', 'Ctr_categoria::selectBD', ['as'=>'categoria.select']);
             $routes->get('categoria/validar/nombre/', 'Ctr_categoria::nombre', ['as'=>'categoria.validar.nombre']);
+
+            //CATEGORIAS
+            $routes->get('atributo/', 'Ctr_atributo::index', ['as'=>'atributo']);
+            $routes->get('atributo/add/', 'Ctr_atributo::crear', ['as'=>'atributo.crear']);
+            $routes->get('atributo/edit/(:num)', 'Ctr_atributo::editar/$1', ['as'=>'atributo.editar']);
+            $routes->post('atributo/', 'Ctr_atributo::action', ['as'=>'atributo.actions']);
+            $routes->post('atributo/select/', 'Ctr_atributo::selectBD', ['as'=>'atributo.select']);
+            $routes->get('atributo/validar/nombre/', 'Ctr_atributo::nombre', ['as'=>'atributo.validar.nombre']);
+
+            //PERSONA
+            $routes->get('persona/(:segment)', 'Ctr_persona::index/$1', ['as'=>'persona']);
+            $routes->get('persona/(:any)/add/', 'Ctr_persona::crear/$1', ['as'=>'persona.crear']);
+            $routes->get('persona/(:any)/edit/(:num)', 'Ctr_persona::editar/$1/$2', ['as'=>'persona.editar']);
+            $routes->post('persona/(:any)/', 'Ctr_persona::action/$1', ['as'=>'persona.actions']);
+            $routes->post('persona/(:any)/select/', 'Ctr_persona::selectBD/$1', ['as'=>'persona.select']);
+            $routes->get('persona/validar/nombre/', 'Ctr_persona::nombre', ['as'=>'persona.validar.nombre']);
+            $routes->get('persona/validar/cedula_ruc/', 'Ctr_persona::cedula_ruc', ['as'=>'persona.validar.cedula_ruc']);
+
+            //PRODUCTOS
+            $routes->get('producto/', 'Ctr_producto::index', ['as'=>'producto']);
+            $routes->get('producto/add/', 'Ctr_producto::crear', ['as'=>'producto.crear']);
+            $routes->get('producto/edit/(:num)', 'Ctr_producto::editar/$1', ['as'=>'producto.editar']);
+            $routes->post('producto/', 'Ctr_producto::action', ['as'=>'producto.actions']);
+            $routes->post('producto/select/', 'Ctr_producto::selectBD', ['as'=>'producto.select']);
+            $routes->get('producto/validar/nombre/', 'Ctr_producto::nombre', ['as'=>'producto.validar.nombre']);
+            $routes->get('producto/validar/codigo_barras/', 'Ctr_producto::codigo_barras', ['as'=>'producto.validar.codigo_barras']);
+
+            //VALOR ATRIBUTO
+            $routes->post('valoratributo/select/', 'Ctr_valoratributo::selectBD', ['as'=>'valoratributo.select']);
+
         });
     });
 });

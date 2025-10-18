@@ -38,32 +38,10 @@
 
 <?= $this->section('content') ?>
 <!--begin::Row-->
-<div class="row">
-    <div class="col-12 col-md-6 px-0 px-sm-3">
+<div class="row mt-3">
+    <div class="col-12 col-md-12 col-lg-7 px-0 px-sm-3">
         <div class="card shadow-none">
-            <div class="card-header">
-                <h3 class="card-title">
-                    <?= $titulo ?>
-                    <!-- <div class="card-tools">
-                        <button
-                            type="button"
-                            class="btn btn-tool"
-                            data-lte-toggle="card-collapse"
-                            title="Collapse"
-                        >
-                            <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
-                            <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
-                        </button>
-                        <button
-                            type="button"
-                            class="btn btn-tool"
-                            data-lte-toggle="card-remove"
-                            title="Remove"
-                        >
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                        </div> -->
-            </div>
+            
             <div class="card-body">
                 <form id="form_global" data-fv-icon-validating="bi bi-arrow-repeat bi-spin">
                     <input type="hidden" name="id" id="id" value="<?= $idValue ?>">
@@ -71,22 +49,19 @@
                     <input type="hidden" name="stock" id="stock" value="0">
                     <?= csrf_field() ?>
                     <div class="mb-3">
+                        <label for="codigo_barras" class="form-label">Código de barras</label>
+                        <div class="form-group position-relative">
+                            <input required maxlength="20" value="<?= $producto["codigo_barras"] ?>" type="text" class="form-control" id="codigo_barras"
+                                name="codigo_barras">
+                        </div>
+                    </div>
+                    <div class="mb-3">
                         <label for="nombre" class="form-label">Nombre</label>
                         <div class="form-group position-relative">
                             <input required type="text" class="form-control" value="<?= $producto["nombre"] ?>" id="nombre" name="nombre"
                                 aria-describedby="nombreHelp">
                         </div>
                         <div id="nombreHelp" class="form-text">Ingrese el nombre del producto.</div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="tipo" class="form-label">Tipo de producto</label>
-                        <div class="position-relative">
-                            <select required class="form-select" id="tipo" name="tipo">
-                                <option selected>Seleccione un tipo</option>
-                                <option value="s" <?= $producto["tipo"] == 's' ? 'selected':'' ?>>Simple</option>
-                                <option value="v" <?= $producto["tipo"] == 'v' ? 'selected':'' ?>>Variable</option>
-                            </select>
-                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="idatributo" class="form-label">Atributos del producto</label>
@@ -112,15 +87,6 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="idempresa" class="form-label">Empresa</label>
-                        <div class="input-group position-relative">
-                            <select required class="form-select" id="idempresa" name="idempresa"></select>
-                            <a target="_blank" href="<?= base_url(route_to('empresa')) ?>"
-                                class="btn btn-outline-secondary" type="button"><i class="bi bi-link-45deg"></i>
-                                Agregar</a>
-                        </div>
-                    </div>
-                    <div class="mb-3">
                         <label for="estado" class="form-label">Estado</label>
                         <div class="position-relative">
                             <select required class="form-select" id="estado" name="estado">
@@ -130,11 +96,18 @@
                             </select>
                         </div>
                     </div>
-                    <div class="mb-3 p-none">
-                        <label for="pvp" class="form-label">PVP</label>
+                    <div class="mb-3">
+                        <label for="precio_venta" class="form-label">Precio de venta</label>
                         <div class="form-group position-relative">
-                            <input required maxlength="20" value="<?= $producto["pvp"]?>" type="text" class="form-control" id="pvp"
-                                name="pvp">
+                            <input required maxlength="20" value="<?= $producto["precio_venta"] ?>" type="text" class="form-control" id="precio_venta"
+                                name="precio_venta">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="stock_minimo" class="form-label">Cantidad(Stock) mínima para aviso notificaciones</label>
+                        <div class="form-group position-relative">
+                            <input required maxlength="20" value="<?= $producto["stock_minimo"] ?>" type="text" class="form-control" id="stock_minimo"
+                                name="stock_minimo">
                         </div>
                     </div>
 
@@ -167,6 +140,11 @@
                     </div>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                     <button type="button" class="btn btn-secondary" id="cancelar">Cancelar</button>
+                    <div id="alert-msg-general" class="alert alert-danger alert-dismissible fade show mt-4 d-none" role="alert">
+                        <div id="messages" class="d-flex flex-column"></div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                
                 </form>
             </div>
             <!-- /.card-body -->
@@ -175,7 +153,7 @@
         </div>
         <!-- /.card -->
     </div>
-    <div class="col-12 col-md-6 px-0 px-sm-3">
+    <div class="col-12 col-md-12 col-lg-5 px-0 px-sm-3">
         <div class="accordion" id="accordionAtributo">
             
         </div>
@@ -298,16 +276,20 @@
                     return true;
                 }
             };
-            return $('#form_global').on('init.field.fv', function (e, data) {
-                // data.field   --> The field name
-                // data.element --> The field element
-                var base_name = '#messages_error_';
-                if (data.field === 'nombres') {
-                    //var $icon = data.element.data('fv.icon');
-                    //$icon.appendTo(base_name+'nombres');
-                }
+            return $('#form_global')
+            .on('init.field.fv', function(e, data) {
+                // lugar para mensajes custom por campo si deseas
+            })
+            .on('err.field.fv', function(e, data) {
+                $('#alert-msg-general').removeClass('d-none');
+            })
+            .on('success.field.fv', function(e, data) {
+                $('#alert-msg-general').addClass('d-none');
             }).formValidation({
                 framework: 'bootstrap',
+                err: {
+                    container: '#messages'
+                },
                 icon: {
                     valid: 'bi bi-check',
                     invalid: 'bi bi-x',
@@ -315,6 +297,30 @@
                 },
                 // live: 'enabled',
                 fields: {
+                    codigo_barras: {
+                        validators: {
+                            notEmpty: {
+                                message: 'Por favor introduce un valor'
+                            },
+                            stringLength: {
+                                min: 2,
+                                max: 100,
+                                //message: 'The username must be more than 6 and less than 30 characters long'
+                            },
+                            remote: {
+                                message: 'El código de barras ya se encuentra registrado',
+                                url: '<?= base_url(route_to('producto.validar.codigo_barras')) ?>',
+                                data: function (validator, $field, value) {
+                                    return {
+                                        "<?= csrf_token() ?>": "<?= csrf_hash() ?>",
+                                        codigo_barras: validator.getFieldElements('codigo_barras').val(),
+                                        id: validator.getFieldElements('id').val() == '' ? 0 : validator.getFieldElements('id').val()
+                                    };
+                                },
+                                type: 'GET'
+                            }
+                        }
+                    },
                     nombre: {
                         validators: {
                             notEmpty: {
@@ -345,18 +351,18 @@
         /**FIN OPCIONES DEL SISTEMA */
 
 
-        /**pvp */
-        $('#pvp').on('input', function () {
+        /**precio_venta */
+        $('#precio_venta').on('input', function () {
             this.value = this.value.replace(/[^0-9.]/g, '');
         });
-        /**FIN pvp */
+        /**FIN precio_venta */
 
 
         /**stock */
-        $('#stock').on('input', function () {
+        $('#stock_minimo').on('input', function () {
             this.value = this.value.replace(/[^0-9]/g, '');
         });
-        /**FIN stock */
+        /**FIN stock_minimo */
 
         // SELECT2
 
@@ -416,61 +422,6 @@
         $("#idcategoria").append(newOption).trigger('change');
         $("#idcategoria").val("<?= $producto["idcategoria"] ?>").trigger('change');
 
-        $("#idempresa").select2({
-            placeholder: 'Seleccionar una empresa',
-            theme: 'bootstrap4',
-            width: '80%',
-            ajax: {
-                url: '<?= base_url(route_to('empresa.select')) ?>',
-                dataType: 'json',
-                type: "post",
-                delay: 250,
-                data: function (data) {
-                    var query = {
-                        "<?= csrf_token() ?>": "<?= csrf_hash() ?>",
-                        searchTerm: data.term,
-                        page: data.page || 1,
-                        size: data.size || 10
-                    }
-                    // Query parameters will be ?search=[term]&page=[page]
-                    return query;
-                },
-                processResults: function (data) {
-                    return {
-                        results: $.map(data.results, function (obj) {
-                            //const texto = "nombre",
-                            //regex = /([^}]*){}/g;
-                            //regex = /}([^}]*){/g;
-                            /*var grupos;
-                            var i = 0;
-                            while ((grupos = regex.exec(texto)) !== null) {
-                                console.log(grupos);
-                            }*/
-                            return {
-                                id: obj.idempresa,
-                                text: obj.nombre
-                            };
-                        }),
-                        pagination: {
-                            more: ((data.page * data.size) < data.count_filtered)
-                        }
-                    };
-                },
-                templateResult: function (item) {
-                    // Display institution name as tag option
-                    return $("<div>" + item.name + "</div>");
-                },
-                instructions: 'To find a book, search the <strong>Book\'s Title</strong>, <strong>ISBN</strong>, or <strong>Authors</strong>',
-                cache: true,
-                allowClear: true,
-                minimumInputLength: 1
-            }
-        });
-
-        var newOption = new Option("<?= $producto["empresa_nombre"] ?>", "<?= $producto["idempresa"] ?>", false, false);
-        $("#idempresa").append(newOption).trigger('change');
-        $("#idempresa").val("<?= $producto["idempresa"] ?>").trigger('change');
-
         $("#idatributo").select2({
             placeholder: 'Seleccionar atributos',
             theme: 'bootstrap4',
@@ -513,7 +464,7 @@
                                 console.log(grupos);
                             }*/
                             return {
-                                id: obj.idatributo,
+                                id: obj.id,
                                 text: obj.nombre
                             };
                         }),

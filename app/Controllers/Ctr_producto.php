@@ -4,22 +4,21 @@ namespace App\Controllers;
 use App\Models\Producto;
 use App\Models\Valoratributo;
 use App\Models\Atributo;
-use App\Models\Atributoproducto;
+use App\Models\Detalle_atributo_producto;
 use App\Models\Empresa;
 use Irsyadulibad\DataTables\DataTables;
 
 class Ctr_producto extends BaseController{
+    private $pagina = 'producto';
     public function index(){
         $ins = new Producto();
         $data = [
             'data_accessos' => [],
-            'esConsedido'   => (object)[
-                "ver" => true
-            ],
+            'esConsedido'   => (object)esConsedido($this->pagina),
             'registros_no_eliminados'   =>  $ins->countActive(),
             'registros_eliminados'   =>  $ins->countDelete(),
             'titulo'   =>  'Listado de producto',
-            'pagina'    =>  'producto',
+            'pagina'    =>  $this->pagina,
             'breadcrumb' => array(
                 array(
                     'url' => base_url(route_to('inicio')),
@@ -32,7 +31,7 @@ class Ctr_producto extends BaseController{
             )
         ];
 
-        if($data["esConsedido"]->ver){
+        if($data["esConsedido"]->leer){
             return view('html/producto/index', $data);
         }
 
@@ -44,6 +43,7 @@ class Ctr_producto extends BaseController{
 
     private function listar(){
         if ($this->request->isAJAX()) {
+            $btn_acciones_list = getDisabledBtnAction($this->pagina);
             $table = db_connect()->table('producto');
             $datatable = $table->select('producto.*, CONCAT(empresa.nombre) as empresa, CONCAT(categoria.nombre) as categoria');
             $datatable->join('empresa', 'producto.idempresa = empresa.idempresa');
@@ -60,8 +60,8 @@ class Ctr_producto extends BaseController{
             }else{
                 $datatable->where('producto.deleted_at' , null);
                 return datatables($datatable)
-                    ->addColumn('accion', function($data) {
-                        return btn_acciones(['all'] , base_url(route_to('producto.editar', $data->idproducto)), $data->idproducto);
+                    ->addColumn('accion', function($data) use ($btn_acciones_list) {
+                        return btn_acciones($btn_acciones_list , base_url(route_to('producto.editar', $data->idproducto)), $data->idproducto);
                     })
                     ->editColumn('estado', function($value, $data) {
                         return '<a title="Cambiar estado" class="btn btn-link btn-sm text-'.($value=='1'?'success':'warning').'" data-action="estado" data-estado="'.$value.'" data-id="'.$data->idproducto.'" href="#">'.($value=='1'?'<i class="bi bi-toggle-on fs-4"></i>':'<i class="bi bi-toggle-off fs-4"></i>').'</a>';
@@ -83,11 +83,9 @@ class Ctr_producto extends BaseController{
     public function crear(){
         $data = [
             'data_accessos' => [],
-            'esConsedido'   => (object)[
-                "crear" => true
-            ],
+            'esConsedido'   => (object)esConsedido($this->pagina),
             'titulo'   =>  'Crear producto',
-            'pagina'    =>  'producto.crear',
+            'pagina'    =>  $this->pagina,
             'action'    =>  'add',
             'breadcrumb' => array(
                 array(
@@ -117,22 +115,20 @@ class Ctr_producto extends BaseController{
 
     public function editar($id){
         $producto = $this->getProducto($id);
-        $atributoProducto = new Atributoproducto();
-        $atributoProducto->select('atributoproducto.*, valoratributo.nombre as valoratributo_nombre, atributo.idatributo, atributo.nombre as atributo_nombre');
-        $atributoProducto->join('valoratributo', 'atributoproducto.idvaloratributo = valoratributo.idvaloratributo');
+        $atributoProducto = new Detalle_atributo_producto();
+        $atributoProducto->select('detalle_atributo_producto.*, valoratributo.nombre as valoratributo_nombre, atributo.idatributo, atributo.nombre as atributo_nombre');
+        $atributoProducto->join('valoratributo', 'detalle_atributo_producto.idvaloratributo = valoratributo.idvaloratributo');
         $atributoProducto->join('atributo', 'atributo.idatributo = valoratributo.idatributo');
-        $atributoProducto->where('atributoproducto.idproducto', $id);
-        $resultadosAtributoProducto = $atributoProducto->where('atributoproducto.estado', 1)->findAll();
+        $atributoProducto->where('detalle_atributo_producto.idproducto', $id);
+        $resultadosAtributoProducto = $atributoProducto->where('detalle_atributo_producto.estado', 1)->findAll();
 
         $data = [
             'data_accessos' => [],
             'producto' => $producto,
             'atributoProducto' => $resultadosAtributoProducto,
-            'esConsedido'   => (object)[
-                "editar" => true
-            ],
+            'esConsedido'   => (object)esConsedido($this->pagina),
             'titulo'   =>  'Editar registro',
-            'pagina'    =>  'producto.editar',
+            'pagina'    =>  $this->pagina,
             'action'    =>  'edit',
             'id'        =>  'idproducto',
             'idValue'   =>  $id,
@@ -148,7 +144,7 @@ class Ctr_producto extends BaseController{
             )
         ];
 
-        if($data["esConsedido"]->editar){
+        if($data["esConsedido"]->modificar){
             return view('html/producto/editar', $data);
         }
 
@@ -233,6 +229,25 @@ class Ctr_producto extends BaseController{
         }
     }
 
+    public function codigo_barras() {
+        $post = (object) $this->request->getGetPost();
+        $ins = new Producto();
+        if ($post->id == '0') {
+            echo json_encode(array('valid' => !$ins->existe($ins->table, strtoupper($post->codigo_barras), 'codigo_barras')));
+            exit();
+        } else {
+            echo json_encode(array('valid' => !$ins->existe_editar(
+                $ins->table,
+                $ins->primaryKey,
+                $post->id,
+                array(
+                    'codigo_barras'=> strtoupper($post->codigo_barras)
+                )
+            )));
+            exit();
+        }
+    }
+
     private function addValoratributo($atributo, $idatributo){
         $id = "";
         if (isset($atributo->isNew) && $atributo->isNew) {
@@ -274,8 +289,8 @@ class Ctr_producto extends BaseController{
 
                 foreach ($atributo->data->nombre as $valor) {
                     $idValoratributo = $this->addValoratributo($valor, $idAtributo);
-                    $ins_Atributoproducto = new Atributoproducto();
-                    $ins_Atributoproducto->insert([
+                    $ins_Detalle_atributo_producto = new Detalle_atributo_producto();
+                    $ins_Detalle_atributo_producto->insert([
                         'idproducto' => $idProducto,
                         'estado' => 1,
                         'precio_pvp' => 0,
@@ -291,8 +306,8 @@ class Ctr_producto extends BaseController{
     }
 
     private function clearAtributoProducto($idproducto){
-        $ins_Atributoproducto = new Atributoproducto();
-        $ins_Atributoproducto->where('idproducto', $idproducto)->delete();
+        $ins_Detalle_atributo_producto = new Detalle_atributo_producto();
+        $ins_Detalle_atributo_producto->where('idproducto', $idproducto)->delete();
         return true;
     }
 
@@ -310,15 +325,15 @@ class Ctr_producto extends BaseController{
 
                     foreach ($atributo->data->nombre as $valor) {
                         $idValoratributo = $this->addValoratributo($valor, $idAtributo);
-                        $ins_Atributoproducto = new Atributoproducto();
+                        $ins_Detalle_atributo_producto = new Detalle_atributo_producto();
 
-                        $existeAtributoProducto = $ins_Atributoproducto
+                        $existeAtributoProducto = $ins_Detalle_atributo_producto
                             ->where('idproducto', $idProducto)
                             ->where('idvaloratributo', $idValoratributo)
                             ->first();
 
                         if(!$existeAtributoProducto){
-                            $ins_Atributoproducto->insert([
+                            $ins_Detalle_atributo_producto->insert([
                                 'idproducto' => $idProducto,
                                 'estado' => 1,
                                 'precio_pvp' => 0,
@@ -555,13 +570,16 @@ class Ctr_producto extends BaseController{
         $fecha = date('Y-m-d', time());
         $hora = date("H:m:s", time());
         $data = array(
-            'idempresa' => strtoupper($post->idempresa),
+            'idempresa' => 1,
             'idcategoria' => strtoupper($post->idcategoria),
             'nombre' => strtoupper($post->nombre),
-            'pvp'    => strtoupper($post->pvp),
-            'descripcion'    => $post->descripcion,
-            'tipo'    => $post->tipo,
-            'estado'    => $post->estado,
+            'codigo_barras' => strtoupper($post->codigo_barras),
+            'descripcion'   => $post->descripcion,
+            'precio_venta'  => $post->precio_venta,
+            'stock'         => $post->stock,
+            'stock_minimo'  => $post->stock_minimo,
+            'estado'        => $post->estado,
+            'slug'          => $post->nombre,
         );
         if($post->action == 'add'){
             $data['slug'] = $this->slugify($post->nombre);

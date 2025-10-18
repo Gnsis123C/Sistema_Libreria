@@ -1,20 +1,33 @@
 <?php
 
 namespace App\Controllers;
-use App\Models\Atributo;
+use App\Models\Persona;
 use App\Models\Empresa;
 use Irsyadulibad\DataTables\DataTables;
 
-class Ctr_atributo extends BaseController{
-    private $pagina = 'atributo';
-    public function index(){
-        $ins = new Atributo();
+class Ctr_persona extends BaseController{
+    private $pagina = 'cliente';
+
+    public function index($pagina = 'cliente'){
+        $this->pagina = $pagina;
+        $titulo = 'Listado de persona';
+        if($pagina == 'cliente'){
+            $titulo = 'Listado de clientes';
+        }else if($pagina == 'proveedor'){
+            $titulo = 'Listado de proveedores';
+        }else{
+            return $this->response->setJSON([
+                "resp" => false,
+                "message" => "No tienes acceso"
+            ]);
+        }
+        $ins = new Persona();
         $data = [
             'data_accessos' => [],
             'esConsedido'   => (object)esConsedido($this->pagina),
             'registros_no_eliminados'   =>  $ins->countActive(),
             'registros_eliminados'   =>  $ins->countDelete(),
-            'titulo'   =>  'Listado de atributos de atributos',
+            'titulo'   =>  $titulo,
             'pagina'    =>  $this->pagina,
             'breadcrumb' => array(
                 array(
@@ -22,14 +35,14 @@ class Ctr_atributo extends BaseController{
                     'name' => 'Inicio'
                 ),
                 array(
-                    'url' => base_url(route_to('atributo')),
-                    'name' => 'Listado de atributos'
+                    'url' => base_url(route_to('persona', $this->pagina)),
+                    'name' => 'Listado de '.$pagina
                 )
             )
         ];
 
         if($data["esConsedido"]->leer){
-            return view('html/atributo/index', $data);
+            return view('html/persona/index', $data);
         }
 
         return $this->response->setJSON([
@@ -41,25 +54,34 @@ class Ctr_atributo extends BaseController{
     private function listar(){
         if ($this->request->isAJAX()) {
             $btn_acciones_list = getDisabledBtnAction($this->pagina);
-            $table = db_connect()->table('atributo');
-            $datatable = $table->select('atributo.*');
+            $table = db_connect()->table('persona');
+
+            $tipo = '0';
+            if($this->pagina == 'cliente'){
+                $tipo = '0';
+            }else if($this->pagina == 'proveedor'){
+                $tipo = '1';
+            }
+
+            $datatable = $table->select('persona.*');
+            $datatable->where('tipo' , $tipo);
 
             if($this->request->getGetPost()['eliminado'] == '1'){
-                $datatable->where('atributo.deleted_at <>' , null);
+                $datatable->where('persona.deleted_at <>' , null);
                 return datatables($datatable)
                     ->addColumn('accion', function($data) {
-                        return btn_acciones(['restore'] , '', $data->idatributo);
+                        return btn_acciones(['restore'] , '', $data->idpersona);
                     })
                     ->rawColumns(['accion'])
                     ->make(false);
             }else{
-                $datatable->where('atributo.deleted_at' , null);
+                $datatable->where('persona.deleted_at' , null);
                 return datatables($datatable)
                     ->addColumn('accion', function($data) use ($btn_acciones_list) {
-                        return btn_acciones($btn_acciones_list , base_url(route_to('atributo.editar', $data->idatributo)), $data->idatributo);
+                        return btn_acciones($btn_acciones_list , base_url(route_to('persona.editar', $this->pagina, $data->idpersona)), $data->idpersona);
                     })
                     ->editColumn('estado', function($value, $data) {
-                        return '<a title="Cambiar estado" class="btn btn-link btn-sm text-'.($value=='1'?'success':'warning').'" data-action="estado" data-estado="'.$value.'" data-id="'.$data->idatributo.'" href="#">'.($value=='1'?'<i class="bi bi-toggle-on fs-4"></i>':'<i class="bi bi-toggle-off fs-4"></i>').'</a>';
+                        return '<a title="Cambiar estado" class="btn btn-link btn-sm text-'.($value=='1'?'success':'warning').'" data-action="estado" data-estado="'.$value.'" data-id="'.$data->idpersona.'" href="#">'.($value=='1'?'<i class="bi bi-toggle-on fs-4"></i>':'<i class="bi bi-toggle-off fs-4"></i>').'</a>';
                     })
                     ->rawColumns(['accion', 'estado'])
                     ->make(false);
@@ -69,32 +91,40 @@ class Ctr_atributo extends BaseController{
         }
     }
 
-    public function crear(){
+    public function crear($pagina = 'cliente'){
+        $this->pagina = $pagina;
+        $titulo = 'Crear persona para productos';
+        if($pagina == 'cliente'){
+            $titulo = 'Añadir cliente';
+        }else if($pagina == 'proveedor'){
+            $titulo = 'Añadir proveedores';
+        }else{
+            return $this->response->setJSON([
+                "resp" => false,
+                "message" => "No tienes acceso"
+            ]);
+        }
         $data = [
             'data_accessos' => [],
             'esConsedido'   => (object)esConsedido($this->pagina),
-            'titulo'   =>  'Crear atributo para productos',
-            'pagina'    =>  'atributo',
+            'titulo'   => $titulo,
+            'pagina'    =>  $this->pagina,
             'action'    =>  'add',
-            'attrform' => $this->atributosForm('crear', 0),
+            'attrform' => $this->personasForm('crear', 0),
             'breadcrumb' => array(
                 array(
                     'url' => base_url(route_to('inicio')),
                     'name' => 'Inicio'
                 ),
                 array(
-                    'url' => base_url(route_to('atributo')),
-                    'name' => 'Listado de atributos'
-                ),
-                array(
-                    'url' => base_url(route_to('atributo.crear')),
-                    'name' => 'Crear registro'
+                    'url' => base_url(route_to('persona.crear', $this->pagina)),
+                    'name' => $titulo
                 )
             )
         ];
 
         if($data["esConsedido"]->crear){
-            return view('html/atributo/crear', $data);
+            return view('html/persona/crear', $data);
         }
 
         return $this->response->setJSON([
@@ -103,29 +133,41 @@ class Ctr_atributo extends BaseController{
         ]);
     }
 
-    public function editar($id){
+    public function editar($pagina = 'cliente', $id = '0'){
+        $this->pagina = $pagina;
+        $titulo = 'Editar persona';
+        if($pagina == 'cliente'){
+            $titulo = 'Editar cliente';
+        }else if($pagina == 'proveedor'){
+            $titulo = 'Editar proveedores';
+        }else{
+            return $this->response->setJSON([
+                "resp" => false,
+                "message" => "No tienes acceso"
+            ]);
+        }
         $data = [
             'data_accessos' => [],
             'esConsedido'   => (object)esConsedido($this->pagina),
-            'titulo'   =>  'Editar registro',
-            'pagina'    =>  'atributo',
+            'titulo'   =>  $titulo,
+            'pagina'    =>  $this->pagina,
             'action'    =>  'edit',
-            'id'        =>  'idatributo',
-            'attrform' => $this->atributosForm('editar', $id),
+            'id'        =>  'idpersona',
+            'attrform' => $this->personasForm('editar', $id),
             'breadcrumb' => array(
                 array(
                     'url' => base_url(route_to('inicio')),
                     'name' => 'Inicio'
                 ),
                 array(
-                    'url' => base_url(route_to('atributo')),
-                    'name' => 'Listado de atributos'
+                    'url' => base_url(route_to('persona', $this->pagina)),
+                    'name' => 'Listado de '.$pagina
                 )
             )
         ];
 
         if($data["esConsedido"]->modificar){
-            return view('html/atributo/editar', $data);
+            return view('html/persona/editar', $data);
         }
 
         return $this->response->setJSON([
@@ -134,21 +176,28 @@ class Ctr_atributo extends BaseController{
         ]);
     }
 
-    private function atributosForm($action, $id){
+    private function personasForm($action, $id){
         $data = array();
+        $tipo = 'Cédula';
+        if($this->pagina == 'cliente'){
+            $tipo = 'Cédula';
+        }else if($this->pagina == 'proveedor'){
+            $tipo = 'RUC';
+        }
+
         $listaExcluir = [];
         $empresa = [
             "id" => "",
             "text" => ""
         ];
-        $atributo = new Atributo();
+        $persona = new Persona();
         if($action == 'editar'){
-            $data = $atributo->find($id);
+            $data = $persona->find($id);
             /*if($id == '1' || $id == '2'){
                 $listaExcluir = ['nombre'];
             }*/
         }
-        $atributosLista = array(
+        $personasLista = array(
             array(
                 'name' => 'id',
                 'type' => 'hidden',
@@ -184,13 +233,43 @@ class Ctr_atributo extends BaseController{
             //     'column' => 'col-md-12',
             // ),
             array(
-                'name' => 'nombre',
+                'name' => 'nombre_completo',
                 'type' => 'textAndNumber',
                 'column' => 'col-md-12',
-                'value' => ($action == 'editar'? $data['nombre']:''),
+                'value' => ($action == 'editar'? $data['nombre_completo']:''),
                 'max' => 100,
-                'title' => 'Escribe el nombre',
-                'placeholder' => 'Escribe el nombre',
+                'title' => 'Nombre completo',
+                'placeholder' => 'Nombre completo',
+                'requerido' => true
+            ),
+            array(
+                'name' => 'email',
+                'type' => 'email',
+                'column' => 'col-md-12',
+                'value' => ($action == 'editar'? $data['email']:''),
+                'max' => 100,
+                'title' => 'Correo electrónico',
+                'placeholder' => 'Correo electrónico',
+                'requerido' => true
+            ),
+            array(
+                'name' => 'telefono',
+                'type' => 'number',
+                'column' => 'col-md-12',
+                'value' => ($action == 'editar'? $data['telefono']:''),
+                'max' => 10,
+                'title' => 'Número de teléfono',
+                'placeholder' => 'Número de teléfono',
+                'requerido' => true
+            ),
+            array(
+                'name' => 'cedula_ruc',
+                'type' => 'number',
+                'column' => 'col-md-12',
+                'value' => ($action == 'editar'? $data['cedula_ruc']:''),
+                'max' => 10,
+                'title' => $tipo.', de la persona',
+                'placeholder' => $tipo.', de la persona',
                 'requerido' => true
             ),
             array(
@@ -214,13 +293,24 @@ class Ctr_atributo extends BaseController{
                     return $item;
                 }, list_estado_acceso_sistema()),
             ),
+            array(
+                'name' => 'direccion',
+                'type' => 'textarea',
+                'column' => 'col-md-12',
+                'value' => ($action == 'editar'? $data['direccion']:''),
+                'max' => 200,
+                'title' => 'Dirección domiciliaria',
+                'placeholder' => 'Dirección domiciliaria',
+                'requerido' => true
+            ),
         );
 
-        return excluirCR($atributosLista, $listaExcluir);
+        return excluirCR($personasLista, $listaExcluir);
     }
 
     //ENDPOINDS
-    public function action() {
+    public function action($pagina = 'cliente') {
+        $this->pagina = $pagina;
         $post = (object) $this->request->getGetPost();
         $data = [];
         if($post->action == 'add' || $post->action == 'edit') $data = $this->editarArray($post);
@@ -262,9 +352,9 @@ class Ctr_atributo extends BaseController{
 
     public function nombre() {
         $post = (object) $this->request->getGetPost();
-        $ins = new Atributo();
+        $ins = new Persona();
         if ($post->id == '0') {
-            echo json_encode(array('valid' => !$ins->existe($ins->table, strtoupper($post->nombre), 'nombre')));
+            echo json_encode(array('valid' => !$ins->existe($ins->table, strtoupper($post->nombre_completo), 'nombre_completo')));
             exit();
         } else {
             echo json_encode(array('valid' => !$ins->existe_editar(
@@ -272,7 +362,26 @@ class Ctr_atributo extends BaseController{
                 $ins->primaryKey,
                 $post->id,
                 array(
-                    'nombre'=> strtoupper($post->nombre)
+                    'nombre_completo'=> strtoupper($post->nombre_completo)
+                )
+            )));
+            exit();
+        }
+    }
+
+    public function cedula_ruc() {
+        $post = (object) $this->request->getGetPost();
+        $ins = new Persona();
+        if ($post->id == '0') {
+            echo json_encode(array('valid' => !$ins->existe($ins->table, strtoupper($post->cedula_ruc), 'cedula_ruc')));
+            exit();
+        } else {
+            echo json_encode(array('valid' => !$ins->existe_editar(
+                $ins->table,
+                $ins->primaryKey,
+                $post->id,
+                array(
+                    'cedula_ruc'=> strtoupper($post->cedula_ruc)
                 )
             )));
             exit();
@@ -281,7 +390,7 @@ class Ctr_atributo extends BaseController{
 
     private function add($data){
         if ($this->request->isAJAX()) {
-            $ins = new Atributo();//->getInsertID();
+            $ins = new Persona();//->getInsertID();
             $estado = $ins->insert($data, false);
             $id = $ins->getInsertID();
             return $estado;
@@ -292,7 +401,7 @@ class Ctr_atributo extends BaseController{
 
     private function edit($id, $data){
         if ($this->request->isAJAX()) {
-            $ins = new Atributo();
+            $ins = new Persona();
             return $ins->update($id, $data);
         }else{
             $this->response->setStatusCode(404, 'Error con la petición');
@@ -301,7 +410,7 @@ class Ctr_atributo extends BaseController{
 
     private function delete($id){
         if ($this->request->isAJAX()) {
-            $ins = new Atributo();
+            $ins = new Persona();
             return $ins->delete($id);
         }else{
             $this->response->setStatusCode(404, 'Error con la petición');
@@ -311,7 +420,7 @@ class Ctr_atributo extends BaseController{
     private function restore($id){
         if ($this->request->isAJAX()) {
             $db = db_connect();
-            $db->query('UPDATE atributo set deleted_at = NULL where idatributo='.$id);
+            $db->query('UPDATE persona set deleted_at = NULL where idpersona='.$id);
             return true;
         }else{
             $this->response->setStatusCode(404, 'Error con la petición');
@@ -321,15 +430,23 @@ class Ctr_atributo extends BaseController{
     private function estado($id, $data){
         if ($this->request->isAJAX()) {
             $db = db_connect();
-            $db->query('UPDATE atributo set updated_at="'.date('Y-m-d H:i:s', time()).'", estado = "'.($data->estado=='1'?'0':'1').'" where idatributo='.$id);
+            $db->query('UPDATE persona set updated_at="'.date('Y-m-d H:i:s', time()).'", estado = "'.($data->estado=='1'?'0':'1').'" where idpersona='.$id);
             return true;
         }else{
             $this->response->setStatusCode(404, 'Error con la petición');
         }
     }
 
-    public function selectBD(){
-        $modelLocal = new Atributo();
+    public function selectBD($pagina = 'cliente'){
+        $this->pagina = $pagina;
+        $tipo = '0';
+        if($pagina == 'cliente'){
+            $tipo = '0';
+        }else if($pagina == 'proveedor'){
+            $tipo = '1';
+        }
+
+        $modelLocal = new Persona();
         $request = service('request');
         $post = $request->getPost();
         
@@ -341,8 +458,9 @@ class Ctr_atributo extends BaseController{
         // Construcción segura de la consulta
         $builder = $modelLocal->builder();
         
-        $builder->select("CONCAT( nombre ) AS nombre, idatributo as id");
-        //->where('idusuario', session('usuario')['idusuario']);//
+        $builder->select("CONCAT( nombre_completo ) AS nombre, idpersona as id")
+        ->where('tipo', $tipo);//
+        // ->where('idusuario', session('usuario')['idusuario']);//
 
         if (!empty($searchTerm)) {
             $builder->groupStart()
@@ -371,14 +489,25 @@ class Ctr_atributo extends BaseController{
     }
 
     private function editarArray($post) {
+        $tipo = '0';
+        if($this->pagina == 'cliente'){
+            $tipo = '0';
+        }else if($this->pagina == 'proveedor'){
+            $tipo = '1';
+        }
+
         date_default_timezone_set('America/Guayaquil');
         setlocale(LC_ALL, 'es_ES');
         $fecha = date('Y-m-d', time());
         $hora = date("H:m:s", time());
         $data = array(
-            // 'idempresa' => strtoupper($post->idempresa),
-            'nombre'    => strtoupper($post->nombre),
-            'estado'    => strtoupper($post->estado)
+            'nombre_completo'   => strtoupper($post->nombre_completo),
+            'email'             => strtolower($post->email),
+            'telefono'          => strtoupper($post->telefono),
+            'direccion'         => ($post->direccion),
+            'cedula_ruc'        => strtoupper($post->cedula_ruc),
+            'estado'            => strtoupper($post->estado),
+            'tipo'              => $tipo,
         );
         if($post->action == 'add'){
             $data['created_at'] = date('Y-m-d H:m:s', time());

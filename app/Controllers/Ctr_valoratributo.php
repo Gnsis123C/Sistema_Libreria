@@ -17,8 +17,7 @@ class Ctr_valoratributo extends BaseController{
     private function listar(){
         if ($this->request->isAJAX()) {
             $table = db_connect()->table('atributo');
-            $datatable = $table->select('atributo.*, CONCAT(empresa.nombre) as empresa');
-            $datatable->join('empresa', 'atributo.idempresa = empresa.idempresa');
+            $datatable = $table->select('atributo.*');
 
             if($this->request->getGetPost()['eliminado'] == '1'){
                 $datatable->where('atributo.deleted_at <>' , null);

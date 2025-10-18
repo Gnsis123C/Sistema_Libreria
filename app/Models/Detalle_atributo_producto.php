@@ -4,17 +4,17 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class Atributoproducto extends Model
+class Detalle_atributo_producto extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'atributoproducto';
-    protected $primaryKey       = 'idatributoproducto';
+    protected $table            = 'detalle_atributo_producto';
+    protected $primaryKey       = 'iddetalle_atributo_producto';
     protected $useAutoIncrement = true;
     protected $insertID         = 0;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['idatributoproducto','idproducto','estado','precio_pvp','idatributo','idvaloratributo'];
+    protected $allowedFields    = ['iddetalle_atributo_producto','idproducto','idvaloratributo','idproducto','estado','idatributo'];
 
     // Dates
     protected $updateDate = true;

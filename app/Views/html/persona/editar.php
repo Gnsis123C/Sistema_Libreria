@@ -24,12 +24,17 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<div class="mb-4">
+  <h1 class="display-6 fw-bold mb-2 text-dark">
+    M. Usuarios
+  </h1>
+</div>
 <!--begin::Row-->
 <div class="row">
     <div class="col-12 px-0 px-sm-3">
         <div class="mb-5">
             <p class="text-muted h6 fw-light">
-                Editar atributos
+                <?= $subtitulo ?? $titulo ?>
             </p>
         </div>
         <!-- Tables Row -->
@@ -107,7 +112,7 @@
             const API = {
                 enviar: function(data) {
                     return $.ajax({
-                        url: '<?= base_url(route_to('atributo.actions')) ?>',
+                        url: '<?= base_url(route_to('persona.actions', $pagina)) ?>',
                         type: 'POST',
                         data: data,
                         dataType: 'JSON',
@@ -126,9 +131,16 @@
                 FormValidation.Validator.ValidarCedula = {
                     validate: function(validator, $field) {
                         const value = $field.val();
-                        if (!isNaN(value) && value.length === 10 && value !== '0000000000') {
-                            return $.cedula(value);
-                        }
+                        <?php if($pagina == 'cliente'){ ?>
+                            if (!isNaN(value) && value.length === 10 && value !== '0000000000') {
+                                return $.cedula(value);
+                            }
+                        <?php }else if($pagina == 'proveedor'){ ?>
+                            if (!isNaN(value) && value.length === 13 && value !== '0000000000000') {
+                                return $.ruc(value);
+                            }
+                        <?php } ?>
+                        
                         return true;
                     }
                 };
@@ -153,19 +165,45 @@
                             validating: 'bi bi-arrow-repeat bi-spin'
                         },
                         fields: {
-                            // email: {
-                            //     validators: {
-                            //         notEmpty: {
-                            //             message: 'Por favor introduce un valor'
-                            //         },
-                            //         stringLength: {
-                            //             min: 5,
-                            //             max: 50
-                            //         },
-                            //         
-                            //     }
-                            // },
-                            nombre: {
+                            cedula_ruc: {
+                                validators: {
+                                    notEmpty: {
+                                        message: 'Por favor introduce un valor'
+                                    },
+                                    ValidarCedula: {
+                                        message: 'El documento de identificación ingresado no es correcto.'
+                                    },
+                                    stringLength: {
+                                        min: 10,
+                                        max: 13
+                                    },
+                                    remote: {
+                                        message: 'La cédula ya se encuentra registrada',
+                                        url: '<?= base_url(route_to('persona.validar.cedula_ruc')) ?>',
+                                        type: 'GET',
+                                        data: function(validator) {
+                                            return {
+                                                "<?= csrf_token() ?>": "<?= csrf_hash() ?>",
+                                                cedula_ruc: validator.getFieldElements('cedula_ruc').val(),
+                                                id: validator.getFieldElements('id').val() || 0
+                                            };
+                                        }
+                                    }
+                                }
+                            },
+                            email: {
+                                validators: {
+                                    notEmpty: {
+                                        message: 'Por favor introduce un valor'
+                                    },
+                                    stringLength: {
+                                        min: 5,
+                                        max: 50
+                                    },
+                                    
+                                }
+                            },
+                            nombre_completo: {
                                 validators: {
                                     notEmpty: {
                                         message: 'Por favor introduce un valor'
@@ -176,12 +214,12 @@
                                     },
                                     remote: {
                                         message: 'El nombre ya se encuentra registrado',
-                                        url: '<?= base_url(route_to('atributo.validar.nombre')) ?>',
+                                        url: '<?= base_url(route_to('persona.validar.nombre')) ?>',
                                         type: 'GET',
                                         data: function(validator) {
                                             return {
                                                 "<?= csrf_token() ?>": "<?= csrf_hash() ?>",
-                                                nombre: validator.getFieldElements('nombre').val(),
+                                                nombre_completo: validator.getFieldElements('nombre_completo').val(),
                                                 id: validator.getFieldElements('id').val() || 0
                                             };
                                         }
@@ -205,7 +243,7 @@
                     .done(function(data) {
                         if (data.resp) {
                             UI.showSuccess("Tus datos fueron guardados");
-                            setTimeout(() => window.location = '<?= base_url(route_to('atributo')) ?>', 2500);
+                            setTimeout(() => window.location = '<?= base_url(route_to('persona', $pagina)) ?>', 2500);
                         } else {
                             UI.showError(data.error);
                         }
@@ -216,7 +254,7 @@
             });
 
             $('#cancelar').on('click', function() {
-                window.location = '<?= base_url(route_to('atributo')) ?>';
+                window.location = '<?= base_url(route_to('persona', $pagina)) ?>';
             });
         });
 </script>

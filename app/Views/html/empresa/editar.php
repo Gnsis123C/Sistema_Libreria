@@ -8,10 +8,12 @@
 <link rel="stylesheet" type="text/css" href="<?= base_url() ?>/assets/plugins/formvalidation/css/formValidation.css" />
 
 <link rel="stylesheet" type="text/css" href="<?= base_url() ?>/assets/plugins/select2/dist/css/select2.min.css" />
-<link rel="stylesheet" type="text/css"
-    href="<?= base_url() ?>/assets/plugins/select2/dist/css/select2-bootstrap-3/select2-bootstrap.css" />
-<link rel="stylesheet" type="text/css"
-    href="<?= base_url() ?>/assets/plugins/select2/dist/css/select2-bootstrap4.min.css" />
+<link rel="stylesheet" type="text/css" href="<?= base_url() ?>/assets/plugins/select2/dist/css/select2-bootstrap-3/select2-bootstrap.css" />
+<link rel="stylesheet" type="text/css" href="<?= base_url() ?>/assets/plugins/select2/dist/css/select2-bootstrap4.min.css" />
+
+<!-- File input -->
+<link rel="stylesheet" type="text/css" href="<?= base_url() ?>/assets/plugins/bootstrap-fileinput/css/fileinput.min.css" />
+
 <style>
     #form_ {
         max-width: 500px;
@@ -73,6 +75,10 @@
 
 <script src="<?= base_url() ?>/assets/plugins/select2/dist/js/select2.full.min.js"></script>
 <script src="<?= base_url() ?>/assets/plugins/select2/dist/js/i18n/es.js"></script>
+
+
+<script src="<?= base_url() ?>/assets/plugins/bootstrap-fileinput/js/fileinput.min.js"></script>
+<script src="<?= base_url() ?>/assets/plugins/bootstrap-fileinput/js/locales/es.js"></script>
 <?= $this->include('plantilla/form/javascript') ?>
 <script type="text/javascript">
     $(function() {
@@ -113,12 +119,29 @@
             // ==========================
             // AJAX
             // ==========================
+            const formDataGlobal = new FormData();
             const API = {
-                enviar: function(data) {
+                enviar: function(data, fileInputId = 'logo') {
+                    var objData = new URLSearchParams(data);
+                    objData.forEach(function (value, key) {
+                        formDataGlobal.append(key, value);
+                    });
+
+                    // Agregar la imagen del fileinput si existe
+                    if (fileInputId) {
+                        const fileInput = document.getElementById(fileInputId);
+                        if (fileInput && fileInput.files.length > 0) {
+                            formDataGlobal.append('logo', fileInput.files[0]);
+                        }
+                    }
+
                     return $.ajax({
                         url: '<?= base_url(route_to('empresa.actions')) ?>',
                         type: 'POST',
-                        data: data,
+                        data: formDataGlobal,
+                        cache: false,
+                        contentType: false,
+                        processData: false,
                         dataType: 'JSON',
                         beforeSend: function() {
                             UI.toggleForm(true);
@@ -218,6 +241,65 @@
 
             $('#cancelar').on('click', function() {
                 window.location = '<?= base_url(route_to('empresa')) ?>';
+            });
+
+            // Configuración fileinput
+            $("#logo").fileinput({
+                language: 'es', // Idioma español
+                theme: 'fas', // Usar Font Awesome 5
+                
+                // Validaciones de archivo
+                allowedFileTypes: ['image'],
+                allowedFileExtensions: ['jpg', 'jpeg', 'png'],
+                maxFileSize: 1024, // 1MB
+                minImageWidth: 50, // Ancho mínimo de imagen
+                minImageHeight: 50, // Alto mínimo de imagen
+                maxImageWidth: 5000, // Ancho máximo
+                maxImageHeight: 5000, // Alto máximo
+                
+                // Comportamiento
+                showUpload: false,
+                showRemove: true,
+                showCancel: false,
+                browseOnZoneClick: true,
+                dropZoneEnabled: true,
+                overwriteInitial: true,
+                initialPreviewAsData: true,
+                maxFileCount: 1,
+                
+                // Mensajes personalizados
+                msgValidationError: 'Error de validación',
+                msgImageWidthSmall: 'El ancho de la imagen "{name}" debe ser de al menos {size} px.',
+                msgImageHeightSmall: 'El alto de la imagen "{name}" debe ser de al menos {size} px.',
+                msgImageWidthLarge: 'El ancho de la imagen "{name}" no puede exceder {size} px.',
+                msgImageHeightLarge: 'El alto de la imagen "{name}" no puede exceder {size} px.',
+                
+                // Configuración de acciones de archivo
+                fileActionSettings: {
+                    showRemove: true,
+                    showUpload: false,
+                    showZoom: true,
+                    showDrag: false,
+                    zoomClass: 'btn btn-sm btn-primary',
+                    removeClass: 'btn btn-sm btn-danger'
+                },
+                // Precargar imagen desde URL
+                initialPreview: [
+                    '<?= base_url($attrform[5]['value']) ?>' // URL de la imagen
+                ],
+                initialPreviewConfig: [
+                    {
+                        //caption: 'Mi Logo', // Texto que aparece debajo de la imagen
+                        //width: '120px', // Ancho de la previsualización
+                        //url: "/delete-url", // URL para eliminar (si es necesario)
+                        //key: 1, // Identificador único
+                        //extra: {id: 123} // Datos extra si los necesitas
+                    }
+                ]
+            });
+
+            $('#logo').on('change', function(event) {
+                $('#change_logo').val('1');
             });
         });
 </script>

@@ -1,92 +1,112 @@
 <?= $this->extend('plantilla/layout') ?>
 
-<?= $this->section('titulo') ?> 
-    <?= $pagina ?> | <?= $titulo ?> <?= json_encode(session('usuario')['usuario']) ?>
+<?= $this->section('titulo') ?>
+<?= $titulo ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('css') ?>
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.4/css/responsive.bootstrap5.css">
-    <style type="text/css">
-        .table.dataTable thead .sorting_desc,
-        .table.dataTable thead .sorting_asc,
-        .table.dataTable thead .sorting {
-          background: none;
-        }
-        .btn-action{
-            width: 12%;
-            text-align: center;
-        }
-        .dataTables_wrapper .dataTables_paginate .paginate_button {
-            padding: 0px !important;
-            border: 0px !important;
-        }
-        .gradeA.estado{
-            min-width: 65px!important;
-            width: 65px!important;
-        }
-    </style> 
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.4/css/responsive.bootstrap5.css">
+<style>
+    #listartable {
+        border: 1px solid #dee2e6;
+    }
+
+    #listartable th,
+    #listartable td {
+        border: 1px solid #dee2e6;
+    }
+
+    .class-tipo {
+        max-width: 160px;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--accent-green);
+        border-color: var(--accent-green);
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: var(--light-gray);
+    }
+
+    #permisosModal .modal-header {
+        background-color: var(--dark-gray);
+        color: white;
+    }
+
+    #permisosModal .modal-header .btn-close {
+        filter: invert(1);
+    }
+
+    .module-name {
+        font-weight: 600;
+        color: var(--dark-gray);
+    }
+
+    .permission-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    #permisosModal .modal-dialog {
+        max-width: 600px;
+    }
+</style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
 <!--begin::Row-->
 <div class="row">
-  <div class="col-12 px-0 px-sm-3">
-    <!-- Default box -->
-     <div class="d-flex justify-content-between mb-2">
-        <ul class="nav nav-pills">
-            <li class="nav-item">
-                <a class="nav-link <?= isset($_GET['papelera'])?'':'active' ?>" aria-current="page" href="<?= base_url(route_to('cliente')) ?>">Registros (<?= $registros_no_eliminados ?>)</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= isset($_GET['papelera'])?'active':'' ?>" href="<?= base_url(route_to('cliente')) ?>?papelera=1">Eliminados (<?= $registros_eliminados ?>)</a>
-            </li>
-        </ul>
-        <a class="btn btn-success" href="<?= base_url(route_to('cliente.crear')) ?>">
-            <i class="bi bi-plus-lg"></i>
-            Crear Registro
-        </a>
+    <div class="col-12 px-0 px-sm-3">
+        <div class="mb-5">
+            <p class="text-muted h6 fw-light">
+                Gestión los datos de <?= $pagina ?>.
+            </p>
+        </div>
+        <!-- Tables Row -->
+        <div class="row g-4">
+            <div class="col-xl-12">
+                <div class="d-flex justify-content-between align-items-sm-end">
+                    <!-- Nav Tabs -->
+                    <ul class="nav nav-tabs border-bottom-0 d-none d-sm-flex">
+                        <li class="nav-item">
+                            <a class="nav-link <?= isset($_GET['papelera']) ? '' : 'active' ?>" aria-current="page" href="<?= base_url(route_to('persona', $pagina)) ?>">
+                                Registros activos (<?= $registros_no_eliminados ?>)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?= !isset($_GET['papelera']) ? '' : 'active' ?>" href="<?= base_url(route_to('persona', $pagina)) ?>?papelera=1">
+                                Registros eliminados (<?= $registros_eliminados ?>)
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Dropdown a la derecha -->
+                    <?php if ($esConsedido->crear): ?>
+                        <!-- Dropdown a la derecha -->
+                        <div class="dropdown ms-sm-auto mb-1">
+                            <a class="btn btn-success rounded-0" href="<?= base_url(route_to('persona.crear', $pagina)) ?>">
+                                <i class="fas fa-plus"></i> Nuevo Registro
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="card rounded-0">
+                    <div class="card-body">
+                        <table id="listartable" style="width:100%" class="table table-striped table-bordered nowrap">
+                            <thead id="thead">
+                            </thead>
+                            <tbody id="tbody_">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card shadow-none">
-      <div class="card-header">
-        <h3 class="card-title">
-          Listado de <?= $titulo ?>
-        <!-- <div class="card-tools">
-          <button
-            type="button"
-            class="btn btn-tool"
-            data-lte-toggle="card-collapse"
-            title="Collapse"
-          >
-            <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
-            <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
-          </button>
-          <button
-            type="button"
-            class="btn btn-tool"
-            data-lte-toggle="card-remove"
-            title="Remove"
-          >
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </div> -->
-      </div>
-      <div class="card-body">
-        <table id="listartable" style="width:100%" class="table table-striped table-bordered nowrap">
-          <thead id="thead">
-          </thead>
-          <tbody id="tbody_">
-          </tbody>
-        </table>
-      </div>
-      <!-- /.card-body -->
-      <!-- <div class="card-footer">Footer</div> -->
-      <!-- /.card-footer-->
-    </div>
-    <!-- /.card -->
-  </div>
 </div>
-<!--end::Row-->
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
@@ -99,7 +119,7 @@
 <script type="text/javascript">
     var datatable;
     $(function(){
-        var column = ['Empresa vinculado','Nombre','CI','Tipo','Estado'];
+        var column = ['Nombre completo','Correo','Cédula/RUC','Teléfono','Dirección domiciliaria','Estado'];
         var dibujarColumn = '<tr>';
         for (var i in column) {
             dibujarColumn += '<th>' + column[i] + '</th>';
@@ -113,7 +133,7 @@
                 processing: true,
                 serverSide: true,
                 "ajax": {
-                    url: '<?php echo base_url(route_to('cliente.actions')); ?>',
+                    url: '<?php echo base_url(route_to('persona.actions', $pagina)); ?>',
                     "type": "POST",
                     "data": function (d) {
                         // Agrega los parámetros necesarios a cada solicitud
@@ -163,16 +183,44 @@
                     "sInfoPostFix": ""
                 },
                 columns: [
+                //   { 
+                //       "data": "empresa", "name":"empresa.nombre", "render": function (d, t, f) {
+                //           return d;
+                //       },
+                //       sDefaultContent: "",
+                //       className: 'gradeA',
+                //       "orderable": true
+                //   },
                   { 
-                      "data": "empresa", "name":"empresa.nombre", "render": function (d, t, f) {
-                          return d;
-                      },
-                      sDefaultContent: "",
-                      className: 'gradeA',
-                      "orderable": true
-                  },
-                  { 
-                      "data": "nombre", "name":"cliente.nombre", "render": function (d, t, f) {
+                      "data": "nombre_completo", "name":"persona.nombre_completo", "render": function (d, t, f) {
+                            return d;
+                        },
+                        sDefaultContent: "",
+                        className: 'gradeA',
+                        "orderable": true
+                  },{ 
+                      "data": "email", "name":"persona.email", "render": function (d, t, f) {
+                            return d;
+                        },
+                        sDefaultContent: "",
+                        className: 'gradeA',
+                        "orderable": true
+                  },{ 
+                      "data": "cedula_ruc", "name":"persona.cedula_ruc", "render": function (d, t, f) {
+                            return d;
+                        },
+                        sDefaultContent: "",
+                        className: 'gradeA',
+                        "orderable": true
+                  },{ 
+                      "data": "telefono", "name":"persona.telefono", "render": function (d, t, f) {
+                            return d;
+                        },
+                        sDefaultContent: "",
+                        className: 'gradeA',
+                        "orderable": true
+                  },{ 
+                      "data": "direccion", "name":"persona.direccion", "render": function (d, t, f) {
                             return d;
                         },
                         sDefaultContent: "",
@@ -180,23 +228,7 @@
                         "orderable": true
                   },
                   { 
-                      "data": "ci", "name":"cliente.ci", "render": function (d, t, f) {
-                            return d;
-                        },
-                        sDefaultContent: "",
-                        className: 'gradeA',
-                        "orderable": true
-                  },
-                  { 
-                      "data": "tipo", "name":"cliente.tipo", "render": function (d, t, f) {
-                            return d;
-                        },
-                        sDefaultContent: "",
-                        className: 'gradeA',
-                        "orderable": true
-                  },
-                  { 
-                      "data": "estado", "name":"cliente.estado", "render": function (d, t, f) {
+                      "data": "estado", "name":"persona.estado", "render": function (d, t, f) {
                           return d;
                       },
                       sDefaultContent: "",
@@ -236,7 +268,7 @@
             }).then((result) => {
               if (result.isConfirmed) {
                 $.ajax({
-                    url: '<?php echo base_url(route_to('cliente.actions')); ?>',
+                    url: '<?php echo base_url(route_to('persona.actions', $pagina)); ?>',
                     type: 'POST',
                     data: {
                         '<?= csrf_token() ?>': '<?= csrf_hash() ?>',
@@ -278,7 +310,7 @@
             e.preventDefault();
             var id = $(this).data('id');
             $.ajax({
-                url: '<?php echo base_url(route_to('cliente.actions')); ?>',
+                url: '<?php echo base_url(route_to('persona.actions', $pagina)); ?>',
                 type: 'POST',
                 data: {
                     '<?= csrf_token() ?>': '<?= csrf_hash() ?>',
@@ -322,7 +354,7 @@
             var id = $(this).data('id');
             var estado = $(this).data('estado');
             $.ajax({
-                url: '<?php echo base_url(route_to('cliente.actions')); ?>',
+                url: '<?php echo base_url(route_to('persona.actions', $pagina)); ?>',
                 type: 'POST',
                 data: {
                     'action': 'estado', 
