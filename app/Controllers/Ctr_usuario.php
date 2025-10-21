@@ -101,7 +101,7 @@ class Ctr_usuario extends BaseController{
             'esConsedido'   => (object)esConsedido($this->pagina),
             'titulo'   =>  'Crear usuario',
             'subtitulo'   =>  'Nuevo registro de usuario',
-            'pagina'    =>  'usuario.crear',
+            'pagina'    =>  'usuario',
             'action'    =>  'add',
             'attrform' => $this->atributosForm('crear', 0),
 
@@ -136,7 +136,7 @@ class Ctr_usuario extends BaseController{
             'data_accessos' => [],
             'esConsedido'   => (object)esConsedido($this->pagina),
             'titulo'   =>  'Editar usuario',
-            'pagina'    =>  'usuario.editar',
+            'pagina'    =>  'usuario',
             'action'    =>  'edit',
             'id'        =>  'idusuario',
             'attrform' => $this->atributosForm('editar', $id),

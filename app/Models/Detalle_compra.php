@@ -4,17 +4,17 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class Compradetalle extends Model
+class Detalle_compra extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'detcompra';
-    protected $primaryKey       = 'iddetcompra';
+    protected $table            = 'detalle_compra';
+    protected $primaryKey       = 'iddetalle_compra';
     protected $useAutoIncrement = true;
     protected $insertID         = 0;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
-    protected $allowedFields    = ['iddetcompra','idcompra','idproducto','cantidad','precio','estado','iva','estado'];
+    protected $allowedFields    = ['iddetalle_compra','idcompra','idproducto','cantidad','precio_compra','estado','iva','estado','created_at','updated_at','venta_usado_cantidad'];
 
     // Dates
     protected $updateDate = true;

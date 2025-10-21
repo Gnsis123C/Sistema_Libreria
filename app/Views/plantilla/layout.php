@@ -11,7 +11,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('assets/img/icon') ?>/favicon-32x32.png?v=2">
   <link rel="icon" type="image/png" sizes="16x16" href="<?= base_url('assets/img/icon') ?>/favicon-16x16.png?v=2">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="<?= base_url("assets/admin.css?v=0.0.6") ?>">
+  <link rel="stylesheet" href="<?= base_url("assets/admin.css?v=0.0.9") ?>">
   <link rel="stylesheet" href="<?= base_url("assets/plugins/toastr/toastr.css") ?>" />
 
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -243,6 +243,8 @@
   <script src="<?= base_url('assets/jquery-3.7.1.min.js') ?>"></script>
   <script src="<?= base_url("assets/plugins/sweetalert2/sweetalert2@11.js") ?>"></script>
   <script src="<?= base_url("assets/plugins/toastr/toastr.min.js") ?>"></script>
+  <script src="<?= base_url("assets/plugins/moment/moment.min.js") ?>"></script>
+  <script src="<?= base_url("assets/plugins/moment/locale/es.js") ?>"></script>
   <!-- End Javascripts -->
   <?= $this->renderSection('script') ?>
   <script>

@@ -1,93 +1,229 @@
 <?= $this->extend('plantilla/layout') ?>
 
-<?= $this->section('titulo') ?> 
-    <?= $pagina ?> | <?= $titulo ?> <?= json_encode(session('usuario')['usuario']) ?>
+<?= $this->section('titulo') ?>
+<?= $titulo ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('css') ?>
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.4/css/responsive.bootstrap5.css">
-    <style type="text/css">
-        .table.dataTable thead .sorting_desc,
-        .table.dataTable thead .sorting_asc,
-        .table.dataTable thead .sorting {
-          background: none;
-        }
-        .btn-action{
-            width: 12%;
-            text-align: center;
-        }
-        .dataTables_wrapper .dataTables_paginate .paginate_button {
-            padding: 0px !important;
-            border: 0px !important;
-        }
-        .gradeA.estado{
-            min-width: 65px!important;
-            width: 65px!important;
-        }
-    </style> 
+<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.4/css/responsive.bootstrap5.css">
+
+
+<link rel="stylesheet" href="<?= base_url("assets/plugins/daterangepicker/daterangepicker.css") ?>">
+<link rel="stylesheet" href="<?= base_url("assets/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css") ?>">
+<link rel="stylesheet" href="<?= base_url("assets/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css") ?>">
+
+    <link rel="stylesheet" type="text/css" href="<?= base_url() ?>/assets/plugins/select2/dist/css/select2.min.css" /> 
+    <link rel="stylesheet" type="text/css" href="<?= base_url() ?>/assets/plugins/select2/dist/css/select2-bootstrap-3/select2-bootstrap.css" /> 
+    <link rel="stylesheet" type="text/css" href="<?= base_url() ?>/assets/plugins/select2/dist/css/select2-bootstrap4.min.css" /> 
+<style>
+    #listartable {
+        border: 1px solid #dee2e6;
+    }
+
+    #listartable th,
+    #listartable td {
+        border: 1px solid #dee2e6;
+    }
+
+    .class-tipo {
+        max-width: 160px;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--accent-green);
+        border-color: var(--accent-green);
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: var(--light-gray);
+    }
+
+    #permisosModal .modal-header {
+        background-color: var(--dark-gray);
+        color: white;
+    }
+
+    #permisosModal .modal-header .btn-close {
+        filter: invert(1);
+    }
+
+    .module-name {
+        font-weight: 600;
+        color: var(--dark-gray);
+    }
+
+    .permission-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    #permisosModal .modal-dialog {
+        max-width: 600px;
+    }
+
+    /* search-box */
+    .search-box {
+        position: relative;
+    }
+
+    .search-box input {
+        padding-left: 2.5rem;
+        border-radius: 0.5rem;
+        border: 1px solid #ced4da;
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+
+    .select2-container--bootstrap4 .select2-selection__clear {
+        padding-left: 0.19em;
+        padding-top: 0.13em;
+    }
+</style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<div class="mb-42">
+  <h1 class="display-6 fw-bold mb-3 text-dark">
+    M. Compras
+  </h1>
+</div>
 <!--begin::Row-->
 <div class="row">
-  <div class="col-12 px-0 px-sm-3">
-    <!-- Default box -->
-     <div class="d-flex justify-content-between mb-2">
-        <ul class="nav nav-pills">
-            <li class="nav-item">
-                <a class="nav-link <?= isset($_GET['papelera'])?'':'active' ?>" aria-current="page" href="<?= base_url(route_to('compra')) ?>">Registros (<?= $registros_no_eliminados ?>)</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link <?= isset($_GET['papelera'])?'active':'' ?>" href="<?= base_url(route_to('compra')) ?>?papelera=1">Eliminados (<?= $registros_eliminados ?>)</a>
-            </li>
-        </ul>
-        <a class="btn btn-success" href="<?= base_url(route_to('compra.crear')) ?>">
-            <i class="bi bi-plus-lg"></i>
-            Crear Registro
-        </a>
+    <div class="col-12 px-0 px-sm-3">
+        <!-- Tables Row -->
+         <div class="row mb-3">
+            <div class="col-12 col-sm-6 col-lg-4 px-sm-2 p-1">
+                <div class="card card-metric card-shadow-dashboard">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <?php if($comprasDelMes['resp']): ?>
+                                <div class="metric-value"><?= $comprasDelMes['data']['total_compras'] ?></div>
+                            <?php endif; ?>
+                            
+                            <div class="metric-label">Compras del mes</div>
+                        </div>
+                        <div class="metric-icon icon-sales">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 px-sm-2 p-1">
+                <div class="card card-metric card-shadow-dashboard">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <?php if($totalComprado['resp']): ?>
+                            <div class="metric-value"><?= $totalComprado['data']['total_comprado'] ?></div>
+                        <?php endif; ?>
+                        <div class="metric-label">Total comprado</div>
+                    </div>
+                    <div class="metric-icon icon-sales">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 px-sm-2 p-1">
+                <div class="card card-metric card-shadow-dashboard">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <?php if($totalProductosComprados['resp']): ?>
+                            <div class="metric-value"><?= $totalProductosComprados['data']['productos'] ?></div>
+                        <?php endif; ?>
+                        <div class="metric-label">Productos Comprados</div>
+                    </div>
+                    <div class="metric-icon icon-sales">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-12">
+                <input type="hidden" id="filtros_activos">
+                <!-- Filtros y búsqueda -->
+                <div class="card card-custom mb-4">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-5">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input id="fecha" type="text" class="form-control" placeholder="Buscar por fecha">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <select id="proveedor_filtro" class="form-select">
+                                    <option value="">Todos los proveedores</option>
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <button class="btn btn-success w-100" id="btn_filtrar">
+                                    <i class="fas fa-filter me-2"></i>Filtrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+         </div>
+        <div class="row g-4">
+            <div class="col-xl-12">
+                <div class="d-flex justify-content-between align-items-sm-end">
+                    <!-- Nav Tabs -->
+                    <ul class="nav nav-tabs border-bottom-0 d-none d-sm-flex">
+                        <li class="nav-item">
+                            <a class="nav-link <?= isset($_GET['papelera']) ? '' : 'active' ?>" aria-current="page" href="<?= base_url(route_to('compra')) ?>">
+                                Registros activos (<?= $registros_no_eliminados ?>)
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link <?= !isset($_GET['papelera']) ? '' : 'active' ?>" href="<?= base_url(route_to('compra')) ?>?papelera=1">
+                                Registros eliminados (<?= $registros_eliminados ?>)
+                            </a>
+                        </li>
+                    </ul>
+
+                    <!-- Dropdown a la derecha -->
+                    <?php if ($esConsedido->crear): ?>
+                        <!-- Dropdown a la derecha -->
+                        <div class="dropdown ms-sm-auto mb-1">
+                            <a class="btn btn-success rounded-0" href="<?= base_url(route_to('compra.crear')) ?>">
+                                <i class="fas fa-plus"></i> Nuevo Registro
+                            </a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <div class="card rounded-0">
+                    <div class="card-body">
+                        <table id="listartable" style="width:100%" class="table table-striped table-bordered nowrap">
+                            <thead id="thead">
+                            </thead>
+                            <tbody id="tbody_">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="card shadow-none">
-      <div class="card-header">
-        <h3 class="card-title">
-          Listado de <?= $titulo ?>
-        <!-- <div class="card-tools">
-          <button
-            type="button"
-            class="btn btn-tool"
-            data-lte-toggle="card-collapse"
-            title="Collapse"
-          >
-            <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
-            <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
-          </button>
-          <button
-            type="button"
-            class="btn btn-tool"
-            data-lte-toggle="card-remove"
-            title="Remove"
-          >
-            <i class="bi bi-x-lg"></i>
-          </button>
-        </div> -->
-      </div>
-      <div class="card-body">
-        <table id="listartable" style="width:100%" class="table table-striped table-bordered nowrap">
-          <thead id="thead">
-          </thead>
-          <tbody id="tbody_">
-          </tbody>
-        </table>
-      </div>
-      
-      <!-- /.card-body -->
-      <!-- <div class="card-footer">Footer</div> -->
-      <!-- /.card-footer-->
-    </div>
-    <!-- /.card -->
-  </div>
 </div>
-<!--end::Row-->
 <?= $this->endSection() ?>
 
 <?= $this->section('script') ?>
@@ -97,10 +233,75 @@
 <script src="https://cdn.datatables.net/responsive/3.0.4/js/dataTables.responsive.js"></script>
 <script src="https://cdn.datatables.net/responsive/3.0.4/js/responsive.bootstrap5.js"></script>
 
+<script src="<?= base_url("assets/plugins/daterangepicker/daterangepicker.js") ?>"></script>
+<script src="<?= base_url("assets/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js") ?>"></script>
+<script src="<?= base_url("assets/plugins/bootstrap-datepicker/locales/bootstrap-datepicker.es.min.js") ?>"></script>
+
+<script src="<?= base_url() ?>/assets/plugins/select2/dist/js/select2.full.min.js"></script> 
+<script src="<?= base_url() ?>/assets/plugins/select2/dist/js/i18n/es.js"></script> 
 <script type="text/javascript">
     var datatable;
     $(function(){
-        var column = ['Proveedor','Fecha de compra'];
+
+        $("#proveedor_filtro").select2({
+            placeholder: 'Seleccionar un proveedor',
+            theme: 'bootstrap4',
+            width: '80%',
+            allowClear:true,
+            ajax: {
+                url: '<?= base_url(route_to('persona.select', 'proveedor')) ?>',
+                dataType: 'json',
+                type: "post",
+                delay: 250,
+                data: function (data) {
+                    var query = {
+                        "<?= csrf_token() ?>": "<?= csrf_hash() ?>",
+                        searchTerm: data.term,
+                        page: data.page || 1,
+                        size: data.size || 10
+                    }
+                    // Query parameters will be ?search=[term]&page=[page]
+                    return query;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data.results, function (obj) {
+                            //const texto = "nombre",
+                            //regex = /([^}]*){}/g;
+                            //regex = /}([^}]*){/g;
+                            /*var grupos;
+                            var i = 0;
+                            while ((grupos = regex.exec(texto)) !== null) {
+                                console.log(grupos);
+                            }*/
+                            return {
+                                id: obj.id,
+                                text: obj.nombre
+                            };
+                        }),
+                        pagination: {
+                            more: ((data.page * data.size) < data.count_filtered)
+                        }
+                    };
+                },
+                templateResult: function (item) {
+                    // Display institution name as tag option
+                    return $("<div>" + item.name + "</div>");
+                },
+                instructions: 'To find a book, search the <strong>Book\'s Title</strong>, <strong>ISBN</strong>, or <strong>Authors</strong>',
+                cache: true,
+                allowClear: true,
+                minimumInputLength: 1
+            }
+        });
+
+        $('#filtros_activos').val(
+            JSON.stringify({
+                fecha: $('#fecha').val() ?? '',
+                idproveedor: $('#proveedor_filtro').val() ?? ''
+            })
+        );
+        var column = ['Proveedor','Fecha de compra','Total de la compra', 'Cantidad comprado'];
         var dibujarColumn = '<tr>';
         for (var i in column) {
             dibujarColumn += '<th>' + column[i] + '</th>';
@@ -121,6 +322,7 @@
                         d.eliminado = <?= isset($_GET['papelera'])?'1':'0' ?>;
                         d.action = "list";
                         d['<?= csrf_token() ?>'] = "<?= csrf_hash() ?>";
+                        d['filtros_activos'] = $('#filtros_activos').val();
                         return d;
                     }
                 },
@@ -165,7 +367,7 @@
                 },
                 columns: [
                   { 
-                      "data": "proveedor", "name":"compra.idcliente", "render": function (d, t, f) {
+                      "data": "proveedor", "name":"compra.idpersona", "render": function (d, t, f) {
                           return d;
                       },
                       sDefaultContent: "",
@@ -174,6 +376,22 @@
                   },
                   { 
                       "data": "fecha", "name":"compra.fecha", "render": function (d, t, f) {
+                            return d;
+                        },
+                        sDefaultContent: "",
+                        className: 'gradeA',
+                        "orderable": true
+                  },
+                  { 
+                      "data": "compra_total", "name":"compra.idcompra", "render": function (d, t, f) {
+                            return d;
+                        },
+                        sDefaultContent: "",
+                        className: 'gradeA',
+                        "orderable": true
+                  },
+                  { 
+                      "data": "cantidad_pedido", "name":"compra.idcompra", "render": function (d, t, f) {
                             return d;
                         },
                         sDefaultContent: "",
@@ -333,6 +551,59 @@
                 $('a[data-action="estado"]').removeClass('disabled');
             });
         });
+
+        // Configuración de daterangepicker
+        $('#fecha').daterangepicker({
+            opens: 'left',
+            "locale": {
+                "format": "YYYY-MM-DD",
+                "separator": " , ",
+                "applyLabel": "Aplicar",
+                "cancelLabel": "Cancelar",
+                "fromLabel": "Desde",
+                "toLabel": "Hasta",
+                "customRangeLabel": "Personalizado",
+                "weekLabel": "S",
+                "daysOfWeek": [
+                    "Do",
+                    "Lu",
+                    "Ma",
+                    "Mi",
+                    "Ju",
+                    "Vi",
+                    "Sa"
+                ],
+                "monthNames": [
+                    "Enero",
+                    "Febrero",
+                    "Marzo",
+                    "Abril",
+                    "Mayo",
+                    "Junio",
+                    "Julio",
+                    "Agosto",
+                    "Septiembre",
+                    "Octubre",
+                    "Noviembre",
+                    "Diciembre"
+                ],
+                "firstDay": 1
+            }
+        }, function(start, end, label) {
+
+            console.log("Se realizó una nueva selección de fecha: " + start.format('YYYY-MM-DD') + ' a ' + end.format('YYYY-MM-DD'));
+        });
+
+        $('#btn_filtrar').click(function() {
+            $('#filtros_activos').val(
+                JSON.stringify({
+                    fecha: $('#fecha').val() ?? '',
+                    idproveedor: $('#proveedor_filtro').val() ?? ''
+                })
+            );
+
+            $('#listartable').DataTable().ajax.reload(function() {});
+        })
     })
 </script>
 

@@ -33,6 +33,12 @@
         right: 55px;
         z-index: 100;
     }
+
+    #form_global .form-control-feedback {
+        position: static;
+        display: inline-block;
+    }
+
 </style>
 <?= $this->endSection() ?>
 
@@ -48,67 +54,57 @@
                     <input type="hidden" name="action" id="action" value="add">
                     <input type="hidden" name="stock" id="stock" value="0">
                     <?= csrf_field() ?>
-                    <div class="mb-3">
+                    <div class="mb-3 form-group position-relative">
                         <label for="codigo_barras" class="form-label">Código de barras</label>
-                        <div class="form-group position-relative">
-                            <input required maxlength="20" value="0" type="text" class="form-control" id="codigo_barras"
+                        <input required maxlength="20" value="0" type="text" class="form-control" id="codigo_barras"
                                 name="codigo_barras">
-                        </div>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3 form-group position-relative">
                         <label for="nombre" class="form-label">Nombre</label>
-                        <div class="form-group position-relative">
-                            <input required type="text" class="form-control" id="nombre" name="nombre"
+                        <input required type="text" class="form-control" id="nombre" name="nombre"
                                 aria-describedby="nombreHelp">
-                        </div>
                         <div id="nombreHelp" class="form-text">Ingrese el nombre del producto.</div>
                     </div>
-                    <div class="mb-3">
-                        <label for="idatributo" class="form-label">Atributo</label>
+                    <div class="mb-3 form-group position-relative">
+                        <label for="idatributo" class="form-label">Atributos del producto</label>
                         <div class="input-group position-relative">
                             <select required class="form-select" multiple="multiple" id="idatributo" name="idatributo"></select>
                             <a target="_blank" href="<?= base_url(route_to('atributo')) ?>"
                                 class="btn btn-outline-secondary" type="button"><i class="bi bi-link-45deg"></i>
                                 Agregar</a>
+
+                            <div class="error_atributo"></div>
                         </div>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3 form-group position-relative">
                         <label for="idcategoria" class="form-label">Categoria</label>
-                        <div class="form-group position-relative">
-                            <div class="input-group mb-3">
-                                <select required multiple="multiple" class="form-select" id="idcategoria"
-                                    name="idcategoria">
-                                    <option>...</option>
-                                </select>
-                                <a target="_blank" href="<?= base_url(route_to('categoria')) ?>"
-                                    class="btn btn-outline-secondary" type="button"><i class="bi bi-link-45deg"></i>
-                                    Agregar</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="estado" class="form-label">Estado</label>
-                        <div class="position-relative">
-                            <select required class="form-select" id="estado" name="estado">
-                                <option selected>Seleccione un estado</option>
-                                <option value="1">Activo</option>
-                                <option value="0">Inactivo</option>
+                        <div class="input-group mb-3">
+                            <select required multiple="multiple" class="form-select" id="idcategoria"
+                                name="idcategoria">
+                                <option>...</option>
                             </select>
+                            <a target="_blank" href="<?= base_url(route_to('categoria')) ?>"
+                                class="btn btn-outline-secondary" type="button"><i class="bi bi-link-45deg"></i>
+                                Agregar</a>
                         </div>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3 form-group position-relative">
+                        <label for="estado" class="form-label">Estado</label>
+                        <select required class="form-select" id="estado" name="estado">
+                            <option selected>Seleccione un estado</option>
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="mb-3 form-group position-relative">
                         <label for="precio_venta" class="form-label">Precio de venta</label>
-                        <div class="form-group position-relative">
-                            <input required maxlength="20" value="0" type="text" class="form-control" id="precio_venta"
+                        <input required maxlength="20" value="0" type="text" class="form-control" id="precio_venta"
                                 name="precio_venta">
-                        </div>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3 form-group position-relative">
                         <label for="stock_minimo" class="form-label">Cantidad(Stock) mínima para aviso notificaciones</label>
-                        <div class="form-group position-relative">
-                            <input required maxlength="20" value="0" type="text" class="form-control" id="stock_minimo"
+                        <input required maxlength="20" value="0" type="text" class="form-control" id="stock_minimo"
                                 name="stock_minimo">
-                        </div>
                     </div>
 
                     <div class="mb-3">
@@ -274,7 +270,16 @@
             };
             return $('#form_global')
             .on('init.field.fv', function(e, data) {
-                // lugar para mensajes custom por campo si deseas
+                // $(e.target)  --> The field element
+                // data.fv      --> The FormValidation instance
+                // data.field   --> The field name
+                // data.element --> The field element
+                var $parent = data.element.parents('.form-group'),
+                    $icon   = data.element.data('fv.icon'),
+                    $label  = $parent.find('label');
+
+                // Place the icon right after the label
+                $icon.insertAfter($label);
             })
             .on('err.field.fv', function(e, data) {
                 $('#alert-msg-general').removeClass('d-none');
@@ -341,6 +346,16 @@
                             }
                         }
                     },
+                    // idatributo: {
+                    //     err: {
+                    //         container: '.error_atributo' // 👈 aquí irá el mensaje de error
+                    //     },
+                    //     validators: {
+                    //         notEmpty: {
+                    //             message: 'Selecciona al menos un atributo'
+                    //         }
+                    //     }
+                    // }
                 }
             });
         }

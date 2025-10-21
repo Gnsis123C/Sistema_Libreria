@@ -40,7 +40,7 @@ function esConsedido($pagina = "") {
 
 function getMenu($pagina = '') {
 	$idusuario = session('usuario')["idusuario"];
-	$acceso_menu = ['inicio', 'empresa', 'usuario','categoria','rol','atributo','cliente','proveedor','producto'];
+	$acceso_menu = ['inicio', 'empresa', 'usuario','categoria','rol','atributo','cliente','proveedor','producto','compra'];
 	if($idusuario != 1) {
 		$db = Database::connect();
 		$builder = $db->table('detalle_rol');
@@ -139,6 +139,13 @@ function getMenu($pagina = '') {
 			'tipo_text_title' => 'Administración de compras',
 			'data' => [
 				[
+					'titulo' => 'Compras',
+					'link' => base_url(route_to('compra')),
+					'icon' => 'cart-1',
+					'active' 	=> false,
+					'pagina' 	=> 'compra',
+				],
+				[
 					'titulo' => 'Proveedores',
 					'link' => base_url(route_to('persona','proveedor')),
 					'icon' => 'user-multiple-4',
@@ -153,6 +160,13 @@ function getMenu($pagina = '') {
 			'tipo_text_title' => 'Administración de productos',
 			'data' => [
 				[
+					'titulo' => 'Productos',
+					'link' => base_url(route_to('producto')),
+					'icon' => 'box-closed',
+					'active' 	=> false,
+					'pagina' 	=> 'producto',
+				],
+				[
 					'titulo' => 'Categoría',
 					'link' => base_url(route_to('categoria')),
 					'icon' => 'brush-1-rotated',
@@ -165,13 +179,6 @@ function getMenu($pagina = '') {
 					'icon' => 'brush-1-rotated',
 					'active' 	=> false,
 					'pagina' 	=> 'atributo',
-				],
-				[
-					'titulo' => 'Productos',
-					'link' => base_url(route_to('producto')),
-					'icon' => 'layers-1',
-					'active' 	=> false,
-					'pagina' 	=> 'producto',
 				],
 			]
 		]

@@ -15,8 +15,8 @@
 <style>
     #form_ {
         max-width: 500px;
-        margin-left: auto;
-        margin-right: auto;
+        /* margin-left: auto;
+        margin-right: auto; */
         display: block;
     }
 </style>
@@ -32,17 +32,17 @@
 <!--begin::Row-->
 <div class="row">
     <div class="col-12 px-0 px-sm-3">
-        <div class="mb-5">
+        <!-- <div class="mb-5">
             <p class="text-muted h6 fw-light">
                 <?= $subtitulo ?? $titulo ?>
             </p>
-        </div>
+        </div> -->
         <!-- Tables Row -->
         <div class="row g-4">
             <div class="col-xl-12">
-                <div class="card rounded-0 border-0 py-5">
-                    <div class="card-body py-2">
-                        <form class="p-4 border rounded-2" id="form_" autocomplete="off">
+                <div class=" rounded-0 border-0 py-2">
+                    <div class="-body py-2">
+                        <form class="p-4 border rounded-2 bg-white" id="form_" autocomplete="off">
                             <?= $this->include('plantilla/form/html') ?>
                             
                             <div id="alert-msg-general" class="alert alert-danger alert-dismissible fade show mt-4 d-none" role="alert">

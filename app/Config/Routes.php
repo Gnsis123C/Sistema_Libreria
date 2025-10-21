@@ -62,8 +62,8 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
             $routes->get('persona/(:segment)', 'Ctr_persona::index/$1', ['as'=>'persona']);
             $routes->get('persona/(:any)/add/', 'Ctr_persona::crear/$1', ['as'=>'persona.crear']);
             $routes->get('persona/(:any)/edit/(:num)', 'Ctr_persona::editar/$1/$2', ['as'=>'persona.editar']);
-            $routes->post('persona/(:any)/', 'Ctr_persona::action/$1', ['as'=>'persona.actions']);
             $routes->post('persona/(:any)/select/', 'Ctr_persona::selectBD/$1', ['as'=>'persona.select']);
+            $routes->post('persona/(:any)/', 'Ctr_persona::action/$1', ['as'=>'persona.actions']);
             $routes->get('persona/validar/nombre/', 'Ctr_persona::nombre', ['as'=>'persona.validar.nombre']);
             $routes->get('persona/validar/cedula_ruc/', 'Ctr_persona::cedula_ruc', ['as'=>'persona.validar.cedula_ruc']);
 
@@ -78,6 +78,13 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
 
             //VALOR ATRIBUTO
             $routes->post('valoratributo/select/', 'Ctr_valoratributo::selectBD', ['as'=>'valoratributo.select']);
+
+            //COMPRA
+            $routes->get('compra/', 'Ctr_compra::index', ['as'=>'compra']);
+            $routes->get('compra/add/', 'Ctr_compra::crear', ['as'=>'compra.crear']);
+            $routes->get('compra/edit/(:num)', 'Ctr_compra::editar/$1', ['as'=>'compra.editar']);
+            $routes->post('compra/', 'Ctr_compra::action', ['as'=>'compra.actions']);
+            $routes->post('compra/select/', 'Ctr_compra::selectBD', ['as'=>'compra.select']);
 
         });
     });

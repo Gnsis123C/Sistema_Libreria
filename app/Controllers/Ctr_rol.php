@@ -92,7 +92,7 @@ class Ctr_rol extends BaseController{
             'esConsedido'   => (object)esConsedido($this->pagina),
             'titulo'   =>  'Crear rol',
             'subtitulo'   =>  'Nuevo registro de rol',
-            'pagina'    =>  'rol.crear',
+            'pagina'    =>  'rol',
             'action'    =>  'add',
             'attrform' => $this->atributosForm('crear', 0),
 
@@ -127,7 +127,7 @@ class Ctr_rol extends BaseController{
             'data_accessos' => [],
             'esConsedido'   => (object)esConsedido($this->pagina),
             'titulo'   =>  'Editar rol',
-            'pagina'    =>  'rol.editar',
+            'pagina'    =>  'rol',
             'action'    =>  'edit',
             'id'        =>  'idrol',
             'attrform' => $this->atributosForm('editar', $id),

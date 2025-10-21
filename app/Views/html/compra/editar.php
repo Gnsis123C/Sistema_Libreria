@@ -1,7 +1,7 @@
 <?= $this->extend('plantilla/layout') ?>
 
-<?= $this->section('titulo') ?> 
-    <?= $pagina ?> | <?= $titulo ?> <?= json_encode(session('usuario')['usuario']) ?>
+<?= $this->section('titulo') ?>
+<?= $pagina ?>
 <?= $this->endSection() ?>
 
 <?= $this->section('css') ?>
@@ -37,11 +37,11 @@
 <!--begin::Row-->
 <div class="row">
   <div class="col-12 col-md-6 px-0 px-sm-3">
-    <div class="card shadow-none">
-      <div class="card-header">
-        <h3 class="card-title">
+    <div class="card shadow-none rounded-0">
+      <div class="card-header rounded-0">
+        <h4 class="card-title fs-6 mb-0">
           Información de Compra
-        </h3>
+      </h4>
       </div>
       <div class="card-body">
         <div class="frm-info-compra pb-3">
@@ -65,11 +65,11 @@
     </div>
   </div>
   <div class="col-12 col-md-6 px-0 px-sm-3">
-    <div class="card shadow-none">
-      <div class="card-header">
-        <h3 class="card-title">
+    <div class="card shadow-none rounded-0">
+      <div class="card-header rounded-0">
+        <h4 class="card-title fs-6 mb-0">
           Agregar Productos
-        </h3>
+        </h4>
       </div>
       <div class="card-body">
         <div class="frm-info-compra pb-3">
@@ -93,11 +93,11 @@
     </div>
   </div>
   <div class="col-12 col-md-12 px-0 px-sm-3 mt-3">
-    <div class="card shadow-none">
-      <div class="card-header">
-        <h3 class="card-title">
+    <div class="card shadow-none rounded-0">
+      <div class="card-header rounded-0">
+        <h4 class="card-title fs-6 mb-0">
           Detalle de Productos
-        </h3>
+        </h4>
       </div>
       <div class="card-body">
         <div class="table-container">
@@ -125,11 +125,11 @@
     </div>
   </div>
   <div class="col-lg-5 px-sm-3 px-0 mt-3">
-    <div class="card shadow-none">
-      <div class="card-header">
-        <h3 class="card-title">
+    <div class="card shadow-none rounded-0">
+      <div class="card-header rounded-0">
+        <h4 class="card-title fs-6 mb-0">
           Resumen de Compra
-        </h3>
+        </h4>
       </div>
       <div class="card-body">
         <div class="summary-box p-3 mb-3">
@@ -185,7 +185,7 @@
         theme: 'bootstrap4',
         width: '80%',
         ajax: {
-            url: '<?= base_url(route_to('cliente.select.proveedor')) ?>',
+            url: '<?= base_url(route_to('persona.select', 'proveedor')) ?>',
             dataType: 'json',
             type: "post",
             delay: 250,
@@ -211,7 +211,7 @@
                             console.log(grupos);
                         }*/
                         return {
-                            id: obj.idcliente,
+                            id: obj.id,
                             text: obj.nombre
                         };
                     }),
@@ -595,6 +595,7 @@
                       compra.listar();
                       $("#proveedor").val(null).trigger('change');
                       $("#fecha").datepicker('update', '<?= date("Y-m-d") ?>');
+                      window.location = '<?= base_url(route_to('compra')) ?>'
                   } else {
                       toastr.error("Error al guardar la compra: " + response.message);
                   }
@@ -648,7 +649,7 @@
                 id: compra.id(),
                 nombre: producto?.nombreProducto || "",
                 idProducto: producto?.idproducto || "",
-                precioCompra: producto?.precio,
+                precioCompra: producto?.precio_compra,
                 cantidad: producto?.cantidad,
                 imagen: producto?.imagen || ""
             }
@@ -656,10 +657,10 @@
         }
 
         // Restore provider if exists
-        if (cabecera.idcliente) {
+        if (cabecera.idpersona) {
             const proveedorOption = new Option(
                 cabecera.nombreCliente,
-                cabecera.idcliente,
+                cabecera.idpersona,
                 true,
                 true
             );

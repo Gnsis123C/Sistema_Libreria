@@ -64,7 +64,7 @@ class Ctr_producto extends BaseController{
                         return btn_acciones($btn_acciones_list , base_url(route_to('producto.editar', $data->idproducto)), $data->idproducto);
                     })
                     ->editColumn('estado', function($value, $data) {
-                        return '<a title="Cambiar estado" class="btn btn-link btn-sm text-'.($value=='1'?'success':'warning').'" data-action="estado" data-estado="'.$value.'" data-id="'.$data->idproducto.'" href="#">'.($value=='1'?'<i class="bi bi-toggle-on fs-4"></i>':'<i class="bi bi-toggle-off fs-4"></i>').'</a>';
+                        return '<a title="Cambiar estado" class="d-flex align-items-center gap-2 btn btn-link btn-sm text-'.($value=='1'?'success':'warning').'" data-action="estado" data-estado="'.$value.'" data-id="'.$data->idproducto.'" href="#">'.($value=='1'?'<i class="bi bi-toggle-on fs-4"></i> <small class="text-muted">Activo</small>':'<i class="bi bi-toggle-off fs-4"></i> <small class="text-muted">Inactivo</small>').'</a>';
                     })
                     ->editColumn('imagen', function($value, $data) {
                         return '<a href="'.base_url($value).'" data-lightbox="'.$data->idproducto.'" data-title="'.$data->nombre.'"><img src="'.base_url($value).'" alt="'.$data->nombre.'" width="50" height="50"></a>';
