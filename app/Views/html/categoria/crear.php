@@ -44,7 +44,6 @@
                     <div class=" py-2">
                         <form class="p-4 border rounded-2 bg-white" id="form_" autocomplete="off">
                             <?= $this->include('plantilla/form/html') ?>
-                            
                             <div id="alert-msg-general" class="alert alert-danger alert-dismissible fade show mt-4 d-none" role="alert">
                                 <div id="messages" class="d-flex flex-column"></div>
                                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>

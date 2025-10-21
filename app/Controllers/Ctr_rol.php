@@ -185,7 +185,7 @@ class Ctr_rol extends BaseController{
                 'column' => 'col-md-12',
                 'value' => ($action == 'editar'? $data['nombre']:''),
                 'max' => 100,
-                'title' => 'Nombre completo',
+                'title' => 'Nombre del rol',
                 'placeholder' => 'Ingrese el nombre completo del rol',
                 'requerido' => true
             )
