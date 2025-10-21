@@ -14,7 +14,7 @@ class Ctr_atributo extends BaseController{
             'esConsedido'   => (object)esConsedido($this->pagina),
             'registros_no_eliminados'   =>  $ins->countActive(),
             'registros_eliminados'   =>  $ins->countDelete(),
-            'titulo'   =>  'Listado de atributos de atributos',
+            'titulo'   =>  'Listado de atributos',
             'pagina'    =>  $this->pagina,
             'breadcrumb' => array(
                 array(
@@ -59,7 +59,7 @@ class Ctr_atributo extends BaseController{
                         return btn_acciones($btn_acciones_list , base_url(route_to('atributo.editar', $data->idatributo)), $data->idatributo);
                     })
                     ->editColumn('estado', function($value, $data) {
-                        return '<a title="Cambiar estado" class="btn btn-link btn-sm text-'.($value=='1'?'success':'warning').'" data-action="estado" data-estado="'.$value.'" data-id="'.$data->idatributo.'" href="#">'.($value=='1'?'<i class="bi bi-toggle-on fs-4"></i>':'<i class="bi bi-toggle-off fs-4"></i>').'</a>';
+                        return '<a title="Cambiar estado" class="py-0 btn btn-link btn-sm text-'.($value=='1'?'success':'warning').'" data-action="estado" data-estado="'.$value.'" data-id="'.$data->idatributo.'" href="#">'.($value=='1'?'<i class="bi bi-toggle-on fs-4"></i>':'<i class="bi bi-toggle-off fs-4"></i>').'</a>';
                     })
                     ->rawColumns(['accion', 'estado'])
                     ->make(false);

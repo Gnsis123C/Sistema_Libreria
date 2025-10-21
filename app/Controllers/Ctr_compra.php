@@ -97,7 +97,7 @@ class Ctr_compra extends BaseController{
                                         <td class="text-end"> $' . round(($totales['total_con_iva'] - $totales['total_sin_iva']), 2) . '</td>
                                     </tr>
                                     <tr class="fw-bold">
-                                        <td class="">Total</td>
+                                        <td class="">Total + IVA</td>
                                         <td class="text-end"> $' . round($totales['total_con_iva'], 2) . '</td>
                                     </tr>
                                 </tbody>
@@ -137,7 +137,7 @@ class Ctr_compra extends BaseController{
                                         <td class="text-end"> $' . round(($totales['total_con_iva'] - $totales['total_sin_iva']), 2) . '</td>
                                     </tr>
                                     <tr class="fw-bold">
-                                        <td class="">Total</td>
+                                        <td class="">Total + IVA</td>
                                         <td class="text-end"> $' . round($totales['total_con_iva'], 2) . '</td>
                                     </tr>
                                 </tbody>

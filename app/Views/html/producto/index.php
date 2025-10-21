@@ -58,17 +58,12 @@
 <?= $this->section('content') ?>
 <div class="mb-4">
   <h1 class="display-6 fw-bold mb-2 text-dark">
-    M. Atributos
+    M. Productos
   </h1>
 </div>
 <!--begin::Row-->
 <div class="row">
     <div class="col-12 px-0 px-sm-3">
-        <div class="mb-5">
-            <p class="text-muted h6 fw-light">
-                Gestión de productos para productos.
-            </p>
-        </div>
         <!-- Tables Row -->
         <div class="row g-4">
             <div class="col-xl-12">
@@ -125,7 +120,7 @@
 <script type="text/javascript">
     var datatable;
     $(function(){
-        var column = ['Nombre','Imagen','Categoría','Descripción','Stock', 'Stock mínimo','Estado'];
+        var column = ['Nombre','Imagen','Categoría','Descripción','Stock', 'Stock notificación','Estado'];
         var dibujarColumn = '<tr>';
         for (var i in column) {
             dibujarColumn += '<th>' + column[i] + '</th>';
@@ -232,7 +227,7 @@
                   },
                   { 
                       "data": "stock_minimo", "name":"producto.stock_minimo", "render": function (d, t, f) {
-                          return d;
+                          return `<i class="fas fa-bell"></i> stock <= ${d}`;
                       },
                       sDefaultContent: "",
                       className: 'gradeA',

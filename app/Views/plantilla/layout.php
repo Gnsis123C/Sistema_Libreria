@@ -207,6 +207,11 @@
       height: 60px;
       object-fit: cover;
     }
+
+    .nav-tabs .nav-link.active {
+        background-color: #fff;
+        border-bottom-width: 0px;
+    }
   </style>
   <?= $this->renderSection('css') ?>
 

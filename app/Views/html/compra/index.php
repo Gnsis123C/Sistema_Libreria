@@ -91,7 +91,7 @@
 <?= $this->section('content') ?>
 <div class="mb-42">
   <h1 class="display-6 fw-bold mb-3 text-dark">
-    M. Compras
+    Módulo. Compras
   </h1>
 </div>
 <!--begin::Row-->
@@ -105,7 +105,7 @@
                         <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <?php if($comprasDelMes['resp']): ?>
-                                <div class="metric-value"><?= $comprasDelMes['data']['total_compras'] ?></div>
+                                <div class="metric-value"><?= round($comprasDelMes['data']['total_compras'], 2) ?></div>
                             <?php endif; ?>
                             
                             <div class="metric-label">Compras del mes</div>
@@ -123,7 +123,7 @@
                     <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <?php if($totalComprado['resp']): ?>
-                            <div class="metric-value"><?= $totalComprado['data']['total_comprado'] ?></div>
+                            <div class="metric-value"><?= round($totalComprado['data']['total_comprado'], 2) ?></div>
                         <?php endif; ?>
                         <div class="metric-label">Total comprado</div>
                     </div>
@@ -145,7 +145,7 @@
                         <div class="metric-label">Productos Comprados</div>
                     </div>
                     <div class="metric-icon icon-sales">
-                        <i class="fas fa-dollar-sign"></i>
+                        <i class="fa-solid fa-boxes-stacked"></i>
                     </div>
                     </div>
                 </div>
@@ -376,7 +376,7 @@
                   },
                   { 
                       "data": "fecha", "name":"compra.fecha", "render": function (d, t, f) {
-                            return d;
+                            return `<i class="fas fa-calendar"></i> ${d}`;
                         },
                         sDefaultContent: "",
                         className: 'gradeA',
@@ -392,7 +392,7 @@
                   },
                   { 
                       "data": "cantidad_pedido", "name":"compra.idcompra", "render": function (d, t, f) {
-                            return d;
+                            return `${d} unidades(s)`;
                         },
                         sDefaultContent: "",
                         className: 'gradeA',

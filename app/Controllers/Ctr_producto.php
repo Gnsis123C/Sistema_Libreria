@@ -45,7 +45,10 @@ class Ctr_producto extends BaseController{
         if ($this->request->isAJAX()) {
             $btn_acciones_list = getDisabledBtnAction($this->pagina);
             $table = db_connect()->table('producto');
-            $datatable = $table->select('producto.*, CONCAT(empresa.nombre) as empresa, CONCAT(categoria.nombre) as categoria');
+            $datatable = $table->select('producto.*, 
+            CONCAT(empresa.nombre) as empresa, 
+            CONCAT(categoria.nombre) as categoria, 
+            ( select sum(detalle_compra.venta_usado_cantidad) from detalle_compra where detalle_compra.idproducto = producto.idproducto ) as stock_actual');
             $datatable->join('empresa', 'producto.idempresa = empresa.idempresa');
             $datatable->join('categoria', 'categoria.idcategoria = producto.idcategoria');
 
