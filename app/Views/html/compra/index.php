@@ -301,7 +301,7 @@
                 idproveedor: $('#proveedor_filtro').val() ?? ''
             })
         );
-        var column = ['Proveedor','Fecha de compra','Total de la compra', 'Cantidad comprado'];
+        var column = ['Proveedor','Fecha de compra','Total de la compra', 'Cantidad comprado', 'Creado por:'];
         var dibujarColumn = '<tr>';
         for (var i in column) {
             dibujarColumn += '<th>' + column[i] + '</th>';
@@ -393,6 +393,14 @@
                   { 
                       "data": "cantidad_pedido", "name":"compra.idcompra", "render": function (d, t, f) {
                             return `${d} unidades(s)`;
+                        },
+                        sDefaultContent: "",
+                        className: 'gradeA',
+                        "orderable": true
+                  },
+                  { 
+                      "data": "usuario_nombre", "name":"compra.idcompra", "render": function (d, t, f) {
+                            return `<small title="${f.usuario_email}">${d} <i class="fas fa-circle-info"></i></small>`;
                         },
                         sDefaultContent: "",
                         className: 'gradeA',

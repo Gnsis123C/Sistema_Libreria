@@ -46,7 +46,8 @@ class Ctr_compra extends BaseController{
             $btn_acciones_list = getDisabledBtnAction($this->pagina);
             $table = db_connect()->table('compra');
             $datatable = $table->select('compra.*, 
-            CONCAT(usuario.usuario) as usuario, 
+            CONCAT(usuario.usuario) as usuario_nombre, 
+            CONCAT(usuario.email) as usuario_email, 
             CONCAT(persona.nombre_completo) as proveedor, 
             compra.idcompra as compra_total,
             (select sum(detalle_compra.cantidad) from detalle_compra where detalle_compra.idcompra = compra.idcompra) as cantidad_pedido
