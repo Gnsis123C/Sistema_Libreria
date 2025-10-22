@@ -120,7 +120,7 @@
 <script type="text/javascript">
     var datatable;
     $(function(){
-        var column = ['Nombre','Imagen','Categoría','Descripción','Stock restante', 'Stock notificación','Estado'];
+        var column = ['Nombre','Imagen','Categoría','Descripción','Precio de venta','Stock restante', 'Stock notificación','Estado'];
         var dibujarColumn = '<tr>';
         for (var i in column) {
             dibujarColumn += '<th>' + column[i] + '</th>';
@@ -211,6 +211,15 @@
                   { 
                       "data": "descripcion", "name":"producto.descripcion", "render": function (d, t, f) {
                             return d;
+                        },
+                        sDefaultContent: "",
+                        className: 'gradeA none', // Added 'none' class to hide in responsive mode
+                        "orderable": true,
+                        responsivePriority: 6 // Lower priority number means higher display priority
+                  },
+                  { 
+                      "data": "precio_venta", "name":"producto.precio_venta", "render": function (d, t, f) {
+                            return `${d} $`;
                         },
                         sDefaultContent: "",
                         className: 'gradeA none', // Added 'none' class to hide in responsive mode

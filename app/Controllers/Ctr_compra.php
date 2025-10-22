@@ -119,13 +119,14 @@ class Ctr_compra extends BaseController{
                         $existe = $ins->existeEnVenta($data->idcompra);
 
                         if($existe){
-                            $array_btn = array_filter($array_btn, function($valor) {
-                                return $valor !== 'editar';
-                            });
+                            // $array_btn = array_filter($array_btn, function($valor) {
+                            //     return $valor !== 'editar';
+                            // });
 
-                            if($array_btn[0] == 'all'){
-                                $array_btn[0] = 'elim';
-                            }
+                            // if($array_btn[0] == 'all'){
+                            //     $array_btn[0] = 'elim';
+                            // }
+                            return 'Compra utilizada';
                         }
 
                         return btn_acciones($array_btn , base_url(route_to('compra.editar', $data->idcompra)), $data->idcompra);
