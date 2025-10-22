@@ -273,6 +273,7 @@
                     "<?= csrf_token() ?>": "<?= csrf_hash() ?>",
                     searchTerm: data.term,
                     page: data.page || 1,
+                    tipo: 'compra',
                     size: data.size || 10
                 }
                 // Query parameters will be ?search=[term]&page=[page]
@@ -312,41 +313,41 @@
     });
 
     const localStorageCrud = {
+      compra: [],
       save: function(key, data) {
-          localStorage.setItem(compra.nameLocalStorage, JSON.stringify(data));
+          // localStorage.setItem(compra.nameLocalStorage, JSON.stringify(data));
+          this.compra[key] = data
       },
 
       get: function(key) {
-          const data = localStorage.getItem(compra.nameLocalStorage);
-          return data ? JSON.parse(data) : null;
+          // const data = localStorage.getItem(compra.nameLocalStorage);
+          // return data ? JSON.parse(data) : null;
+          return this.compra[key];
       },
 
       update: function(key, newData) {
-          let data = this.get(compra.nameLocalStorage);
-          if (data) {
-              data = {...data, ...newData};
-              this.save(compra.nameLocalStorage, data);
-              return true;
-          }
-          return false;
+          this.compra[key] = newData;
+          return true;
       },
 
       delete: function(key) {
-          localStorage.removeItem(compra.nameLocalStorage);
+        this.compra[key] = [];
+          // localStorage.removeItem(compra.nameLocalStorage);
       },
 
       clear: function() {
-          localStorage.clear();
+          // localStorage.clear();
+          this.compra[key] = [];
       },
 
       exists: function(key) {
-          return localStorage.getItem(compra.nameLocalStorage) !== null;
+          return true
       },
 
       appendToArray: function(key, item) {
-          let array = this.get(compra.nameLocalStorage) || [];
+          let array = this.get(key) || [];
           array.push(item);
-          this.save(compra.nameLocalStorage, array);
+          this.save(key, array);
       },
 
       removeFromArray: function(key, index) {

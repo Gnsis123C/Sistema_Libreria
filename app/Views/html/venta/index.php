@@ -7,6 +7,15 @@
 <?= $this->section('css') ?>
 <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.4/css/responsive.bootstrap5.css">
+
+
+<link rel="stylesheet" href="<?= base_url("assets/plugins/daterangepicker/daterangepicker.css") ?>">
+<link rel="stylesheet" href="<?= base_url("assets/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css") ?>">
+<link rel="stylesheet" href="<?= base_url("assets/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css") ?>">
+
+    <link rel="stylesheet" type="text/css" href="<?= base_url() ?>/assets/plugins/select2/dist/css/select2.min.css" /> 
+    <link rel="stylesheet" type="text/css" href="<?= base_url() ?>/assets/plugins/select2/dist/css/select2-bootstrap-3/select2-bootstrap.css" /> 
+    <link rel="stylesheet" type="text/css" href="<?= base_url() ?>/assets/plugins/select2/dist/css/select2-bootstrap4.min.css" /> 
 <style>
     #listartable {
         border: 1px solid #dee2e6;
@@ -52,41 +61,149 @@
     #permisosModal .modal-dialog {
         max-width: 600px;
     }
+
+    /* search-box */
+    .search-box {
+        position: relative;
+    }
+
+    .search-box input {
+        padding-left: 2.5rem;
+        border-radius: 0.5rem;
+        border: 1px solid #ced4da;
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #6c757d;
+    }
+
+    .select2-container--bootstrap4 .select2-selection__clear {
+        padding-left: 0.19em;
+        padding-top: 0.13em;
+    }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="mb-4">
-  <h1 class="display-6 fw-bold mb-2 text-dark">
-    M. Productos
+<div class="mb-42">
+  <h1 class="display-6 fw-bold mb-3 text-dark">
+    Módulo. Ventas
   </h1>
 </div>
 <!--begin::Row-->
 <div class="row">
     <div class="col-12 px-0 px-sm-3">
         <!-- Tables Row -->
+         <div class="row mb-3">
+            <div class="col-12 col-sm-6 col-lg-4 px-sm-2 p-1">
+                <div class="card card-metric card-shadow-dashboard">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <?php if($ventasDelMes['resp']): ?>
+                                <div class="metric-value"><?= round($ventasDelMes['data']['total_ventas'], 2) ?></div>
+                            <?php endif; ?>
+                            
+                            <div class="metric-label">Ventas del mes</div>
+                        </div>
+                        <div class="metric-icon icon-sales">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 px-sm-2 p-1">
+                <div class="card card-metric card-shadow-dashboard">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <?php if($totalVentas['resp']): ?>
+                            <div class="metric-value"><?= round($totalVentas['data']['total_vendido'], 2) ?></div>
+                        <?php endif; ?>
+                        <div class="metric-label">Total vendido</div>
+                    </div>
+                    <div class="metric-icon icon-sales">
+                        <i class="fas fa-dollar-sign"></i>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4 px-sm-2 p-1">
+                <div class="card card-metric card-shadow-dashboard">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <?php if($totalProductosVentas['resp']): ?>
+                            <div class="metric-value"><?= $totalProductosVentas['data']['productos'] ?></div>
+                        <?php endif; ?>
+                        <div class="metric-label">Productos Comprados</div>
+                    </div>
+                    <div class="metric-icon icon-sales">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+         </div>
+         <div class="row">
+            <div class="col-12">
+                <input type="hidden" id="filtros_activos">
+                <!-- Filtros y búsqueda -->
+                <div class="card card-custom mb-4">
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12 col-md-5">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input id="fecha" type="text" class="form-control" placeholder="Buscar por fecha">
+                                </div>
+                            </div>
+                            <div class="col-12 col-md-4">
+                                <select id="cliente_filtro" class="form-select">
+                                    <option value="">Todos los clientees</option>
+                                    <option value="1">Activo</option>
+                                    <option value="0">Inactivo</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-md-3">
+                                <button class="btn btn-success w-100" id="btn_filtrar">
+                                    <i class="fas fa-filter me-2"></i>Filtrar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+         </div>
         <div class="row g-4">
             <div class="col-xl-12">
                 <div class="d-flex justify-content-between align-items-sm-end">
                     <!-- Nav Tabs -->
-                    <ul class="nav nav-tabs border-bottom-0 d-none d-sm-flex">
+                    <!-- <ul class="nav nav-tabs border-bottom-0 d-none d-sm-flex">
                         <li class="nav-item">
-                            <a class="nav-link <?= isset($_GET['papelera']) ? '' : 'active' ?>" aria-current="page" href="<?= base_url(route_to('producto')) ?>">
+                            <a class="nav-link <?= isset($_GET['papelera']) ? '' : 'active' ?>" aria-current="page" href="<?= base_url(route_to('venta')) ?>">
                                 Registros activos (<?= $registros_no_eliminados ?>)
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link <?= !isset($_GET['papelera']) ? '' : 'active' ?>" href="<?= base_url(route_to('producto')) ?>?papelera=1">
+                            <a class="nav-link <?= !isset($_GET['papelera']) ? '' : 'active' ?>" href="<?= base_url(route_to('venta')) ?>?papelera=1">
                                 Registros eliminados (<?= $registros_eliminados ?>)
                             </a>
                         </li>
-                    </ul>
+                    </ul> -->
 
                     <!-- Dropdown a la derecha -->
                     <?php if ($esConsedido->crear): ?>
                         <!-- Dropdown a la derecha -->
                         <div class="dropdown ms-sm-auto mb-1">
-                            <a class="btn btn-success rounded-0" href="<?= base_url(route_to('producto.crear')) ?>">
+                            <a class="btn btn-success rounded-0" href="<?= base_url(route_to('venta.crear')) ?>">
                                 <i class="fas fa-plus"></i> Nuevo Registro
                             </a>
                         </div>
@@ -115,12 +232,76 @@
 <script src="https://cdn.datatables.net/2.2.2/js/dataTables.bootstrap5.js"></script>
 <script src="https://cdn.datatables.net/responsive/3.0.4/js/dataTables.responsive.js"></script>
 <script src="https://cdn.datatables.net/responsive/3.0.4/js/responsive.bootstrap5.js"></script>
-<script src="<?= base_url() ?>/assets/plugins/lightbox2/js/lightbox.js"></script> 
 
+<script src="<?= base_url("assets/plugins/daterangepicker/daterangepicker.js") ?>"></script>
+<script src="<?= base_url("assets/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js") ?>"></script>
+<script src="<?= base_url("assets/plugins/bootstrap-datepicker/locales/bootstrap-datepicker.es.min.js") ?>"></script>
+
+<script src="<?= base_url() ?>/assets/plugins/select2/dist/js/select2.full.min.js"></script> 
+<script src="<?= base_url() ?>/assets/plugins/select2/dist/js/i18n/es.js"></script> 
 <script type="text/javascript">
     var datatable;
     $(function(){
-        var column = ['Nombre','Imagen','Categoría','Descripción','Stock restante', 'Stock notificación','Estado'];
+
+        $("#cliente_filtro").select2({
+            placeholder: 'Seleccionar un cliente',
+            theme: 'bootstrap4',
+            width: '80%',
+            allowClear:true,
+            ajax: {
+                url: '<?= base_url(route_to('persona.select', 'cliente')) ?>',
+                dataType: 'json',
+                type: "post",
+                delay: 250,
+                data: function (data) {
+                    var query = {
+                        "<?= csrf_token() ?>": "<?= csrf_hash() ?>",
+                        searchTerm: data.term,
+                        page: data.page || 1,
+                        size: data.size || 10
+                    }
+                    // Query parameters will be ?search=[term]&page=[page]
+                    return query;
+                },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data.results, function (obj) {
+                            //const texto = "nombre",
+                            //regex = /([^}]*){}/g;
+                            //regex = /}([^}]*){/g;
+                            /*var grupos;
+                            var i = 0;
+                            while ((grupos = regex.exec(texto)) !== null) {
+                                console.log(grupos);
+                            }*/
+                            return {
+                                id: obj.id,
+                                text: obj.nombre
+                            };
+                        }),
+                        pagination: {
+                            more: ((data.page * data.size) < data.count_filtered)
+                        }
+                    };
+                },
+                templateResult: function (item) {
+                    // Display institution name as tag option
+                    return $("<div>" + item.name + "</div>");
+                },
+                instructions: 'To find a book, search the <strong>Book\'s Title</strong>, <strong>ISBN</strong>, or <strong>Authors</strong>',
+                cache: true,
+                allowClear: true,
+                minimumInputLength: 1
+            }
+        });
+
+        $('#filtros_activos').val(
+            JSON.stringify({
+                fecha: $('#fecha').val() ?? '',
+                idcliente: $('#cliente_filtro').val() ?? ''
+            })
+        );
+        var column = ['Cliente','Fecha de venta','Total de la venta', 'Cantidad vendido', 'Creado por:'];
         var dibujarColumn = '<tr>';
         for (var i in column) {
             dibujarColumn += '<th>' + column[i] + '</th>';
@@ -134,13 +315,14 @@
                 processing: true,
                 serverSide: true,
                 "ajax": {
-                    url: '<?php echo base_url(route_to('producto.actions')); ?>',
+                    url: '<?php echo base_url(route_to('venta.actions')); ?>',
                     "type": "POST",
                     "data": function (d) {
                         // Agrega los parámetros necesarios a cada solicitud
                         d.eliminado = <?= isset($_GET['papelera'])?'1':'0' ?>;
                         d.action = "list";
                         d['<?= csrf_token() ?>'] = "<?= csrf_hash() ?>";
+                        d['filtros_activos'] = $('#filtros_activos').val();
                         return d;
                     }
                 },
@@ -185,7 +367,23 @@
                 },
                 columns: [
                   { 
-                      "data": "nombre", "name":"producto.nombre", "render": function (d, t, f) {
+                      "data": "cliente", "name":"venta.idpersona", "render": function (d, t, f) {
+                          return d;
+                      },
+                      sDefaultContent: "",
+                      className: 'gradeA',
+                      "orderable": true
+                  },
+                  { 
+                      "data": "fecha", "name":"venta.fecha", "render": function (d, t, f) {
+                            return `<i class="fas fa-calendar"></i> ${d}`;
+                        },
+                        sDefaultContent: "",
+                        className: 'gradeA',
+                        "orderable": true
+                  },
+                  { 
+                      "data": "venta_total", "name":"venta.idventa", "render": function (d, t, f) {
                             return d;
                         },
                         sDefaultContent: "",
@@ -193,71 +391,29 @@
                         "orderable": true
                   },
                   { 
-                      "data": "imagen", "name":"producto.imagen", "render": function (d, t, f) {
-                            return d;
+                      "data": "cantidad_pedido", "name":"venta.idventa", "render": function (d, t, f) {
+                            return `${d} unidades(s)`;
                         },
                         sDefaultContent: "",
-                        className: 'gradeA img-producto',
+                        className: 'gradeA',
                         "orderable": true
                   },
                   { 
-                      "data": "categoria", "name":"categoria.nombre", "render": function (d, t, f) {
-                          return d;
-                      },
-                      sDefaultContent: "",
-                      className: 'gradeA',
-                      "orderable": true
-                  },
-                  { 
-                      "data": "descripcion", "name":"producto.descripcion", "render": function (d, t, f) {
-                            return d;
+                      "data": "usuario_nombre", "name":"venta.idventa", "render": function (d, t, f) {
+                            return `<small title="${f.usuario_email}">${d} <i class="fas fa-circle-info"></i></small>`;
                         },
                         sDefaultContent: "",
-                        className: 'gradeA none', // Added 'none' class to hide in responsive mode
-                        "orderable": true,
-                        responsivePriority: 6 // Lower priority number means higher display priority
-                  },
-                //   { 
-                //       "data": "stock", "name":"producto.stock", "render": function (d, t, f) {
-                //           return d;
-                //       },
-                //       sDefaultContent: "",
-                //       className: 'gradeA',
-                //       "orderable": true
-                //   },
-                  { 
-                      "data": "stock_restante", "name":"producto.idproducto", "render": function (d, t, f) {
-                          return d;
-                      },
-                      sDefaultContent: "",
-                      className: 'gradeA',
-                      "orderable": true
+                        className: 'gradeA',
+                        "orderable": true
                   },
                   { 
-                      "data": "stock_minimo", "name":"producto.stock_minimo", "render": function (d, t, f) {
-                          return `<i class="fas fa-bell"></i> stock <= ${d}`;
-                      },
-                      sDefaultContent: "",
-                      className: 'gradeA',
-                      "orderable": true
-                  },
-                  { 
-                      "data": "estado", "name":"producto.estado", "render": function (d, t, f) {
-                          return d;
-                      },
-                      sDefaultContent: "",
-                      className: 'gradeA',
-                      "orderable": true
-                  },
-                  { 
-                        "data": "accion", "render": function (d, t, f) {
-                            return d;
-                        },
-                        sDefaultContent: "",
-                        className: 'gradeA btn-action',
-                        "orderable": false,
-                        "searchable": false,
-                        responsivePriority: 1 // Lower priority number means higher display priority
+                      "data": "accion", "render": function (d, t, f) {
+                              return d;
+                          },
+                          sDefaultContent: "",
+                          className: 'gradeA btn-action',
+                          "orderable": false,
+                          "searchable": false
                   }
                 ],
                 // "initComplete": function( settings, json ) {
@@ -283,7 +439,7 @@
             }).then((result) => {
               if (result.isConfirmed) {
                 $.ajax({
-                    url: '<?php echo base_url(route_to('producto.actions')); ?>',
+                    url: '<?php echo base_url(route_to('venta.actions')); ?>',
                     type: 'POST',
                     data: {
                         '<?= csrf_token() ?>': '<?= csrf_hash() ?>',
@@ -325,7 +481,7 @@
             e.preventDefault();
             var id = $(this).data('id');
             $.ajax({
-                url: '<?php echo base_url(route_to('producto.actions')); ?>',
+                url: '<?php echo base_url(route_to('venta.actions')); ?>',
                 type: 'POST',
                 data: {
                     '<?= csrf_token() ?>': '<?= csrf_hash() ?>',
@@ -369,7 +525,7 @@
             var id = $(this).data('id');
             var estado = $(this).data('estado');
             $.ajax({
-                url: '<?php echo base_url(route_to('producto.actions')); ?>',
+                url: '<?php echo base_url(route_to('venta.actions')); ?>',
                 type: 'POST',
                 data: {
                     'action': 'estado', 
@@ -403,6 +559,59 @@
                 $('a[data-action="estado"]').removeClass('disabled');
             });
         });
+
+        // Configuración de daterangepicker
+        $('#fecha').daterangepicker({
+            opens: 'left',
+            "locale": {
+                "format": "YYYY-MM-DD",
+                "separator": " , ",
+                "applyLabel": "Aplicar",
+                "cancelLabel": "Cancelar",
+                "fromLabel": "Desde",
+                "toLabel": "Hasta",
+                "customRangeLabel": "Personalizado",
+                "weekLabel": "S",
+                "daysOfWeek": [
+                    "Do",
+                    "Lu",
+                    "Ma",
+                    "Mi",
+                    "Ju",
+                    "Vi",
+                    "Sa"
+                ],
+                "monthNames": [
+                    "Enero",
+                    "Febrero",
+                    "Marzo",
+                    "Abril",
+                    "Mayo",
+                    "Junio",
+                    "Julio",
+                    "Agosto",
+                    "Septiembre",
+                    "Octubre",
+                    "Noviembre",
+                    "Diciembre"
+                ],
+                "firstDay": 1
+            }
+        }, function(start, end, label) {
+
+            console.log("Se realizó una nueva selección de fecha: " + start.format('YYYY-MM-DD') + ' a ' + end.format('YYYY-MM-DD'));
+        });
+
+        $('#btn_filtrar').click(function() {
+            $('#filtros_activos').val(
+                JSON.stringify({
+                    fecha: $('#fecha').val() ?? '',
+                    idcliente: $('#cliente_filtro').val() ?? ''
+                })
+            );
+
+            $('#listartable').DataTable().ajax.reload(function() {});
+        })
     })
 </script>
 

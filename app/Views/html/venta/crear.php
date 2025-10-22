@@ -40,22 +40,22 @@
     <div class="card shadow-none rounded-0">
       <div class="card-header rounded-0">
         <h4 class="card-title fs-6 mb-0">
-            Información de Compra
+            Información de Venta
         </h4>
       </div>
       <div class="card-body">
-        <div class="frm-info-compra pb-3">
+        <div class="frm-info-venta pb-3">
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-                <label for="proveedor">Proveedor</label>
-                <select class="form-select" id="proveedor">
+                <label for="cliente">Cliente</label>
+                <select class="form-select" id="cliente">
                 </select>
               </div>
             </div>
             <div class="col-md-6 mt-3 mt-md-0">
               <div class="form-group">
-                <label for="fecha">Fecha de Compra</label>
+                <label for="fecha">Fecha de Venta</label>
                 <input type="text" class="form-control" id="fecha" value="<?= date("Y-m-d") ?>">
               </div>
             </div>
@@ -72,7 +72,7 @@
       </h4>
       </div>
       <div class="card-body">
-        <div class="frm-info-compra pb-3">
+        <div class="frm-info-venta pb-3">
           <div class="row">
           <div class="col-md-8">
               <div class="form-group">
@@ -128,7 +128,7 @@
     <div class="card shadow-none rounded-0">
       <div class="card-header rounded-0">
         <h4 class="card-title fs-6 mb-0">
-          Resumen de Compra
+          Resumen de Venta
         </h4>
       </div>
       <div class="card-body">
@@ -147,12 +147,12 @@
             </div>
         </div>
         
-        <button type="button" class="btn btn-success w-100 py-2 mb-3" id="guardarCompra">
+        <button type="button" class="btn btn-success w-100 py-2 mb-3" id="guardarVenta">
             <i class="fas fa-save me-2"></i>
-            Guardar Compra
+            Guardar Venta
         </button>
 
-        <button type="button" class="btn btn-outline-secondary w-100" id="limpiarCompra">
+        <button type="button" class="btn btn-outline-secondary w-100" id="limpiarVenta">
             <i class="fas fa-broom me-2"></i>
             Limpiar Todo
         </button>
@@ -180,12 +180,12 @@
         language: 'es'
     }).on('changeDate', function(e) {});
     
-    $("#proveedor").select2({
-        placeholder: 'Seleccionar un proveedor',
+    $("#cliente").select2({
+        placeholder: 'Seleccionar un cliente',
         theme: 'bootstrap4',
         width: '80%',
         ajax: {
-            url: '<?= base_url(route_to('persona.select', 'proveedor')) ?>',
+            url: '<?= base_url(route_to('persona.select', 'cliente')) ?>',
             dataType: 'json',
             type: "post",
             delay: 250,
@@ -237,7 +237,7 @@
       }
 
       var $state = $(
-        '<span><img width="15" src="<?= base_url() ?>'+ state.imagen + '" class="img-flag" /> ' + state.text + '</span>'
+        '<span><img width="15" src="<?= base_url() ?>'+ state.imagen + '" class="img-flag" /> ' + state.text + ' (' + state.stock + ')</span>'
       );
       return $state;
     };
@@ -247,11 +247,12 @@
         return state.text;
       }
       var $state = $(
-        '<span><img width="15" class="img-flag" /> <span></span></span>'
+        '<div><img width="15" class="img-flag" /><span id="title-select2"></span> <span id="stock-select2"></span></div>'
       );
 
       // Use .text() instead of HTML string concatenation to avoid script injection issues
-      $state.find("span").text(state.text);
+      $state.find("#title-select2").text(state.text);
+      $state.find("#stock-select2").text(state.stock || 0);
       $state.find("img").attr("src", "<?= base_url() ?>" + state.imagen);
 
       return $state;
@@ -273,7 +274,7 @@
                     "<?= csrf_token() ?>": "<?= csrf_hash() ?>",
                     searchTerm: data.term,
                     page: data.page || 1,
-                    tipo: 'compra',
+                    tipo: 'venta',
                     size: data.size || 10
                 }
                 // Query parameters will be ?search=[term]&page=[page]
@@ -294,6 +295,8 @@
                             id: obj.idproducto,
                             text: obj.nombre,
                             imagen: obj.imagen,
+                            stock: obj.stock,
+                            precio_venta: obj.precio_venta,
                         };
                     }),
                     pagination: {
@@ -314,26 +317,26 @@
 
     const localStorageCrud = {
       save: function(key, data) {
-          localStorage.setItem(compra.nameLocalStorage, JSON.stringify(data));
+          localStorage.setItem(venta.nameLocalStorage, JSON.stringify(data));
       },
 
       get: function(key) {
-          const data = localStorage.getItem(compra.nameLocalStorage);
+          const data = localStorage.getItem(venta.nameLocalStorage);
           return data ? JSON.parse(data) : null;
       },
 
       update: function(key, newData) {
-          let data = this.get(compra.nameLocalStorage);
+          let data = this.get(venta.nameLocalStorage);
           if (data) {
               data = {...data, ...newData};
-              this.save(compra.nameLocalStorage, data);
+              this.save(venta.nameLocalStorage, data);
               return true;
           }
           return false;
       },
 
       delete: function(key) {
-          localStorage.removeItem(compra.nameLocalStorage);
+          localStorage.removeItem(venta.nameLocalStorage);
       },
 
       clear: function() {
@@ -341,35 +344,35 @@
       },
 
       exists: function(key) {
-          return localStorage.getItem(compra.nameLocalStorage) !== null;
+          return localStorage.getItem(venta.nameLocalStorage) !== null;
       },
 
       appendToArray: function(key, item) {
-          let array = this.get(compra.nameLocalStorage) || [];
+          let array = this.get(venta.nameLocalStorage) || [];
           array.push(item);
-          this.save(compra.nameLocalStorage, array);
+          this.save(venta.nameLocalStorage, array);
       },
 
       removeFromArray: function(key, index) {
-          let array = this.get(compra.nameLocalStorage);
+          let array = this.get(venta.nameLocalStorage);
           if (array && array.length > index) {
               array.splice(index, 1);
-              this.save(compra.nameLocalStorage, array);
+              this.save(venta.nameLocalStorage, array);
               return true;
           }
           return false;
       }
     }
-    // Lógica de añadir productos a la compra
-    const compra = {
-        nameLocalStorage:"compra",
+    // Lógica de añadir productos a la venta
+    const venta = {
+        nameLocalStorage:"venta",
         productos: [],
         subtotal: 0,
         iva: 0,
         ivaPorc: 0.15,
         total: 0,
         cabecera:{
-          proveedor: {
+          cliente: {
             id:0,
             nombre:""
           },
@@ -377,39 +380,46 @@
         },
         id: () => new Date().getTime(),
         agregarProducto: (producto, cantidad) => {
-            const productoExistente = compra.productos?.find(p => p.idProducto == producto.idProducto);
+            const productoExistente = venta.productos?.find(p => p.idProducto == producto.idProducto);
             if (productoExistente) {
                 productoExistente.cantidad += cantidad;
+                if(producto.stock < productoExistente.cantidad){
+                  productoExistente.cantidad = producto.stock;
+                }
             } else {
                 producto.cantidad = cantidad;
-                compra.productos.push(producto);
+                if(producto.stock < producto.cantidad){
+                  producto.cantidad = producto.stock;
+                }
+                venta.productos.push(producto);
             }
 
-            compra.listar();
+            venta.listar();
             return true;
         },
+
         listar: () => {
           const tabla = $("#tabla-productos");
           // Limpiar solo las filas del cuerpo
           tabla.find("tr").remove();
           if (tabla.length === 0) return;
-          if (compra.productos.length === 0) {
+          if (venta.productos.length === 0) {
               tabla.append(`<tr class="empty-state">
                   <td colspan="5">
                       <i class="fas fa-cart-arrow-down fa-3x d-block mb-2"></i>
                       No hay productos agregados
                   </td>
               </tr>`);
-              localStorageCrud.save("compra", compra);
+              localStorageCrud.save("venta", venta);
               return;
           }
           
           let totalDetalle = 0;
           const tbody = tabla.find("tbody").length ? tabla.find("tbody") : tabla;
           
-          compra.productos.forEach((producto, index) => {
+          venta.productos.forEach((producto, index) => {
             const fila = $("<tr>").data("index", index);
-            const subtotal = parseFloat(producto.precioCompra * producto.cantidad);
+            const subtotal = parseFloat(producto.precioVenta * producto.cantidad);
             totalDetalle += subtotal;
 
             // Columna Nombre
@@ -422,8 +432,12 @@
               .val(producto.cantidad)
               .on("change", function() {
                 const newCantidad = parseFloat($(this).val()) || 0;
-                compra.productos[index].cantidad = newCantidad;
-                compra.actualizarSubtotal(fila);
+                venta.productos[index].cantidad = newCantidad;
+                if(venta.productos[index].stock < venta.productos[index].cantidad){
+                  venta.productos[index].cantidad = venta.productos[index].stock;
+                  $(this).val(venta.productos[index].cantidad);
+                }
+                venta.actualizarSubtotal(fila);
               });
             fila.append($("<td>").append(inputCantidad));
             
@@ -431,11 +445,11 @@
             const inputPrecio = $("<input>")
               .attr("type", "number")
               .addClass("form-control form-control-sm precio")
-              .val(producto.precioCompra)
+              .val(producto.precioVenta)
               .on("change", function() {
                 const newPrecio = parseFloat($(this).val()) || 0;
-                compra.productos[index].precioCompra = newPrecio;
-                compra.actualizarSubtotal(fila);
+                venta.productos[index].precioVenta = newPrecio;
+                venta.actualizarSubtotal(fila);
               });
             fila.append($("<td>").append(inputPrecio));
             
@@ -446,7 +460,7 @@
             const btnEliminar = $("<button>")
               .addClass("btn btn-danger btn-sm")
               .text("Eliminar")
-              .on("click", () => compra.eliminarProducto(index));
+              .on("click", () => venta.eliminarProducto(index));
             
             fila.append($("<td>").addClass("text-center").append(btnEliminar));
             tbody.append(fila);
@@ -454,16 +468,16 @@
 
           // Actualizar total
           $("#total-detalle").text(totalDetalle.toFixed(2));
-          compra.actualizarTotal();
+          venta.actualizarTotal();
           return true;
         },
         
         actualizarSubtotal: (fila) => {
           const index = fila.data("index");
-          const producto = compra.productos[index];
+          const producto = venta.productos[index];
           
           // Calcular nuevo subtotal
-          const subtotal = producto.cantidad * producto.precioCompra;
+          const subtotal = producto.cantidad * producto.precioVenta;
           fila.find(".subtotal").text(subtotal.toFixed(2));
           
           // Recalcular total general
@@ -474,17 +488,18 @@
           
           $("#total-detalle").text(totalDetalle.toFixed(2));
 
-          compra.actualizarTotal();
+          venta.actualizarTotal();
+          
         },
 
         actualizarTotal: () => {
           let subtotal = 0;
-          compra.productos.forEach(producto => {
-              subtotal += producto.precioCompra * producto.cantidad;
+          venta.productos.forEach(producto => {
+              subtotal += producto.precioVenta * producto.cantidad;
           });
 
           // Calculate IVA (15%)
-          const iva = subtotal * compra.ivaPorc;
+          const iva = subtotal * venta.ivaPorc;
 
           // Calculate total
           const total = subtotal + iva;
@@ -494,111 +509,122 @@
           $('#iva').text('$' + iva.toFixed(2)); 
           $('#total').text('$' + total.toFixed(2));
 
-          // Store values in compra object
-          compra.subtotal = subtotal;
-          compra.iva = iva;
-          compra.total = total;
+          // Store values in venta object
+          venta.subtotal = subtotal;
+          venta.iva = iva;
+          venta.total = total;
 
-          localStorageCrud.save("compra", compra);
+          localStorageCrud.save("venta", venta);
 
           return true;
         },
         
         eliminarProducto: (index) => {
-          compra.productos.splice(index, 1);
-          compra.listar();
+          venta.productos.splice(index, 1);
+          venta.listar();
         },
 
-        cargarCompraGuardada: () => {
-            const compraGuardada = localStorageCrud.get("compra");
-            if (compraGuardada) {
+        cargarVentaGuardada: () => {
+            const ventaGuardada = localStorageCrud.get("venta");
+            if (ventaGuardada) {
                 // Restore saved purchase data
-                compra.productos = compraGuardada.productos || [];
-                compra.subtotal = compraGuardada.subtotal || 0;
-                compra.iva = compraGuardada.iva || 0;
-                compra.total = compraGuardada.total || 0;
-                compra.cabecera = compraGuardada.cabecera || {
-                    proveedor: { id: 0, nombre: "" },
+                venta.productos = ventaGuardada.productos.map(e => {
+                  return {
+                    ...e,
+                    cantidad:0,
+                    stock:0,
+                  }
+                }) || [];
+                venta.subtotal = ventaGuardada.subtotal || 0;
+                venta.iva = ventaGuardada.iva || 0;
+                venta.total = ventaGuardada.total || 0;
+                venta.cabecera = ventaGuardada.cabecera || {
+                    cliente: { id: 0, nombre: "" },
                     fecha: ""
                 };
 
                 // Restore provider if exists
-                if (compra.cabecera.proveedor.id) {
-                    const proveedorOption = new Option(
-                        compra.cabecera.proveedor.nombre,
-                        compra.cabecera.proveedor.id,
+                if (venta.cabecera.cliente.id) {
+                    const clienteOption = new Option(
+                        venta.cabecera.cliente.nombre,
+                        venta.cabecera.cliente.id,
                         true,
                         true
                     );
-                    $("#proveedor").append(proveedorOption).trigger('change');
-                    // $("#proveedor").val(compra.cabecera.proveedor.id).trigger('change');
+                    $("#cliente").append(clienteOption).trigger('change');
+                    // $("#cliente").val(venta.cabecera.cliente.id).trigger('change');
                 }
 
                 // Restore date if exists
-                if (compra.cabecera.fecha) {
-                    $("#fecha").datepicker('update', compra.cabecera.fecha);
+                if (venta.cabecera.fecha) {
+                    $("#fecha").datepicker('update', venta.cabecera.fecha);
                 }
 
                 // Refresh products table
-                compra.listar();
+                venta.listar();
                 return true;
             }
             return false;
         },
 
-        guardarCompra: () => {
+        guardarVenta: () => {
           // Validate provider and date before saving purchase
-          if (!$("#proveedor").val()) {
-              toastr.error("Debe seleccionar un proveedor para la compra");
+          if (!$("#cliente").val()) {
+              toastr.error("Debe seleccionar un cliente para la venta");
               return;
           }
 
           if (!$("#fecha").val()) {
-              toastr.error("Debe seleccionar una fecha válida para la compra"); 
+              toastr.error("Debe seleccionar una fecha válida para la venta"); 
               return;
           }
 
-          if (compra.productos.length === 0) {
-              toastr.error("Debe agregar al menos un producto a la compra");
+          if (venta.productos.length === 0) {
+              toastr.error("Debe agregar al menos un producto a la venta");
               return;
           }
+
+          const ventaLocal = localStorageCrud.get('venta');
+
+          // console.log("ventaLocal", ventaLocal)
 
           // Get provider data
-          const proveedor = $("#proveedor").select2("data")[0];
-          compra.cabecera.proveedor = {
-              id: proveedor.id,
-              nombre: proveedor.text
+          const cliente = $("#cliente").select2("data")[0];
+          venta.cabecera.cliente = {
+              id: cliente.id,
+              nombre: cliente.text
           };
 
           // Get purchase date
-          compra.cabecera.fecha = $("#fecha").val();
+          venta.cabecera.fecha = $("#fecha").val();
+          venta.cabecera.subtotal = ventaLocal.subtotal;
 
-          compra.actualizarTotal();
+          venta.actualizarTotal();
 
           // Save purchase data
           $.ajax({
-              url: '<?= base_url(route_to('compra.actions')) ?>',
+              url: '<?= base_url(route_to('venta.actions')) ?>',
               method: 'POST',
               data: {
                   "<?= csrf_token() ?>": "<?= csrf_hash() ?>",
                   action: "add",
-                  compra: {
-                      cabecera: compra.cabecera,
-                      detalle: compra.productos
+                  venta: {
+                      cabecera: venta.cabecera,
+                      detalle: venta.productos
                   }
               },
               success: function(response) {
                   if (response.resp) {
-                      toastr.success("Compra guardada exitosamente");
+                      toastr.success("Venta guardada exitosamente");
                       // Clear local storage and reset form
-                      localStorageCrud.delete("compra");
-                      compra.productos = [];
-                      compra.listar();
-                      $("#proveedor").val(null).trigger('change');
+                      localStorageCrud.delete("venta");
+                      venta.productos = [];
+                      venta.listar();
+                      $("#cliente").val(null).trigger('change');
                       $("#fecha").datepicker('update', '<?= date("Y-m-d") ?>');
-                      window.location = '<?= base_url(route_to('compra')) ?>'
+                      window.location = '<?= base_url(route_to('venta')) ?>'
                   } else {
-                      toastr.error("Error al guardar la compra: " + response.message);
+                      toastr.error("Error al guardar la venta: " + response.message);
                   }
               },
               error: function(xhr, status, error) {
@@ -606,39 +632,42 @@
               }
           });
         },
+
         limpiarTodo: () => {
-          compra.productos = [];
-          compra.listar();
-          localStorageCrud.delete("compra");
+          venta.productos = [];
+          venta.listar();
+          localStorageCrud.delete("venta");
         }
     }
 
     $( "#agregarDetalle" ).click(()=>{
-      const producto = $("#producto-select").select2("data")[0];
-      if(producto){
+      const producto = $("#producto-select").select2("data")[0] ?? {};
+      const { stock = 0, precio_venta = 0 } = producto;
+      if(producto && stock != 0){
         const productoJson = {
-          id: compra.id(),
+          id: venta.id(),
           nombre: producto?.text || "",
           idProducto: producto?.id || "",
-          precioCompra: 1,
+          precioVenta: precio_venta,
           cantidad: 1,
+          stock,
           imagen: producto?.imagen || ""
         }
-        compra.agregarProducto(productoJson, 1);
+        venta.agregarProducto(productoJson, 1);
       }else{
         toastr.error("Existe un error, no hay productos que agregar al detalle");
       }
     })
 
-    $( "#guardarCompra" ).click(function(){
-      compra.guardarCompra();
+    $( "#guardarVenta" ).click(function(){
+      venta.guardarVenta();
     })
 
-    $( "#limpiarCompra" ).click(function(){
-      compra.limpiarTodo();
+    $( "#limpiarVenta" ).click(function(){
+      venta.limpiarTodo();
     })
 
-    compra.cargarCompraGuardada();
+    venta.cargarVentaGuardada();
   })
 </script>
 

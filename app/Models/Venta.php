@@ -4,17 +4,17 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class Compra extends Model
+class Venta extends Model
 {
     protected $DBGroup          = 'default';
-    protected $table            = 'compra';
-    protected $primaryKey       = 'idcompra';
+    protected $table            = 'venta';
+    protected $primaryKey       = 'idventa';
     protected $useAutoIncrement = true;
     protected $insertID         = 0;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = true;
     protected $protectFields    = true;
-    protected $allowedFields    = ['idcompra','idpersona','idusuario','fecha','estado','created_at','updated_at'];
+    protected $allowedFields    = ['idventa','idpersona','idusuario','fecha','estado','numero_factura','precio_total','created_at','updated_at'];
 
     // Dates
     protected $updateDate = true;
@@ -74,18 +74,18 @@ class Compra extends Model
         return $this->onlyDeleted()->countAllResults();
     }
 
-    public function getSumCompra($idcompra){
+    public function getSumVenta($idventa){
         try {
             $db = \Config\Database::connect();
-            $builder = $db->table('detalle_compra');
+            $builder = $db->table('detalle_venta');
 
             // Calculamos total sin IVA y con IVA
             $builder->select("
                 count(*) AS productos,
-                SUM(precio_compra * cantidad) AS total_sin_iva,
-                SUM((precio_compra * cantidad) * (1 + (iva / 100))) AS total_con_iva
+                SUM(precio_venta * cantidad) AS total_sin_iva,
+                SUM((precio_venta * cantidad) * (1 + (iva / 100))) AS total_con_iva
             ");
-            $builder->where('idcompra', $idcompra);
+            $builder->where('idventa', $idventa);
 
             $query = $builder->get();
             $result = $query->getRowArray();
@@ -106,28 +106,28 @@ class Compra extends Model
         }
     }
 
-    public function comprasDelMes()
+    public function ventasDelMes()
     {
         try {
             $db = \Config\Database::connect();
-            $builder = $db->table('detalle_compra');
+            $builder = $db->table('detalle_venta');
             $builder->select('
-            SUM(detalle_compra.cantidad * detalle_compra.precio_compra) AS total_compras
+            SUM(detalle_venta.cantidad * detalle_venta.precio_venta) AS total_ventas
         ');
-            $builder->join('compra', 'compra.idcompra = detalle_compra.idcompra');
-            $builder->where('compra.estado', 1);
-            $builder->where('compra.deleted_at', null);
+            $builder->join('venta', 'venta.idventa = detalle_venta.idventa');
+            $builder->where('venta.estado', 1);
+            $builder->where('venta.deleted_at', null);
 
             // 🔹 Filtrar por el mes y año actual
-            $builder->where('MONTH(compra.fecha)', date('m'));
-            $builder->where('YEAR(compra.fecha)', date('Y'));
+            $builder->where('MONTH(venta.fecha)', date('m'));
+            $builder->where('YEAR(venta.fecha)', date('Y'));
 
             $query = $builder->get();
 
-            if ($query->getNumRows() == 0 || !$query->getRow()->total_compras) {
+            if ($query->getNumRows() == 0 || !$query->getRow()->total_ventas) {
                 return [
                     'resp'  => false,
-                    'error' => "No existen compras registradas este mes"
+                    'error' => "No existen ventas registradas este mes"
                 ];
             }
 
@@ -135,7 +135,7 @@ class Compra extends Model
                 'resp'  => true,
                 'data'  => [
                     'mes' => date('F Y'),
-                    'total_compras' => (float) $query->getRow()->total_compras
+                    'total_ventas' => (float) $query->getRow()->total_ventas
                 ]
             ];
         } catch (\Exception $e) {
@@ -146,31 +146,31 @@ class Compra extends Model
         }
     }
 
-    public function totalComprado()
+    public function totalVentas()
     {
         try {
             $db = \Config\Database::connect();
-            $builder = $db->table('detalle_compra');
+            $builder = $db->table('detalle_venta');
             $builder->select('
-            SUM(detalle_compra.cantidad * detalle_compra.precio_compra) AS total_gastado
+            SUM(detalle_venta.cantidad * detalle_venta.precio_venta) AS total_gastado
         ');
-            $builder->join('compra', 'compra.idcompra = detalle_compra.idcompra');
-            $builder->where('compra.estado', 1);
-            $builder->where('compra.deleted_at', null);
+            $builder->join('venta', 'venta.idventa = detalle_venta.idventa');
+            $builder->where('venta.estado', 1);
+            $builder->where('venta.deleted_at', null);
 
             $query = $builder->get();
 
             if ($query->getNumRows() == 0 || !$query->getRow()->total_gastado) {
                 return [
                     'resp'  => false,
-                    'error' => "No existen compras registradas"
+                    'error' => "No existen ventas registradas"
                 ];
             }
 
             return [
                 'resp'  => true,
                 'data'  => [
-                    'total_comprado' => (float) $query->getRow()->total_gastado
+                    'total_vendido' => (float) $query->getRow()->total_gastado
                 ]
             ];
         } catch (\Exception $e) {
@@ -181,24 +181,24 @@ class Compra extends Model
         }
     }
 
-    public function totalProductosComprados()
+    public function totalProductosVentas()
     {
         try {
             $db = \Config\Database::connect();
-            $builder = $db->table('detalle_compra');
+            $builder = $db->table('detalle_venta');
             $builder->select('
-            SUM(detalle_compra.cantidad) AS total_productos
+            SUM(detalle_venta.cantidad) AS total_productos
         ');
-            $builder->join('compra', 'compra.idcompra = detalle_compra.idcompra');
-            $builder->where('compra.estado', 1);
-            $builder->where('compra.deleted_at', null);
+            $builder->join('venta', 'venta.idventa = detalle_venta.idventa');
+            $builder->where('venta.estado', 1);
+            $builder->where('venta.deleted_at', null);
 
             $query = $builder->get();
 
             if ($query->getNumRows() == 0 || !$query->getRow()->total_productos) {
                 return [
                     'resp'  => false,
-                    'error' => "No existen productos comprados"
+                    'error' => "No existen productos ventados"
                 ];
             }
 
@@ -216,14 +216,14 @@ class Compra extends Model
         }
     }
 
-    public function getCompraProducto($idcompra) {
+    public function getVentaProducto($idventa) {
         try {
             $db = \Config\Database::connect();
-            $builder = $db->table('detalle_compra');
-            $builder->select('detalle_compra.*, compra.fecha as fecha, compra.estado as estado_compra, producto.nom_producto');
-            $builder->join('compra', 'compra.idcompra = detalle_compra.idcompra');
-            $builder->join('producto', 'producto.idproducto = detalle_compra.idproducto');
-            $builder->where('compra.idcompra', $idcompra);
+            $builder = $db->table('detalle_venta');
+            $builder->select('detalle_venta.*, venta.fecha as fecha, venta.estado as estado_venta, producto.nom_producto');
+            $builder->join('venta', 'venta.idventa = detalle_venta.idventa');
+            $builder->join('producto', 'producto.idproducto = detalle_venta.idproducto');
+            $builder->where('venta.idventa', $idventa);
             $query = $builder->get();
             $resp = $query->getResult('array') ?? [];
             return [
@@ -235,20 +235,6 @@ class Compra extends Model
                 'resp'  => false,
                 'error' => $e->getMessage()
             ];
-        }
-    }
-
-    public function existeEnVenta($idcompra) {
-        try {
-            $db = db_connect();
-            $query = $db->query('SELECT * FROM inventario_venta 
-                join detalle_compra on(detalle_compra.iddetalle_compra = inventario_venta.iddetalle_compra)
-                where detalle_compra.idcompra = '.$idcompra. ' limit 1
-            ');
-            return (count($query->getResult('array')) > 0) ? true : false;
-        } catch (\Exception $ex) {
-            echo $ex->getMessage();
-            return null;
         }
     }
 

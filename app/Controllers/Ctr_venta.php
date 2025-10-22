@@ -1,38 +1,38 @@
 <?php
 
 namespace App\Controllers;
-use App\Models\Compra;
-use App\Models\Detalle_compra;
+use App\Models\Venta;
+use App\Models\Detalle_venta;
 use Irsyadulibad\DataTables\DataTables;
 
-class Ctr_compra extends BaseController{
-    private $pagina = 'compra';
+class Ctr_venta extends BaseController{
+    private $pagina = 'venta';
     public function index(){
-        $ins = new Compra();
+        $ins = new Venta();
         $data = [
             'data_accessos' => [],
             'esConsedido'   => (object)esConsedido($this->pagina),
             'registros_no_eliminados'   =>  $ins->countActive(),
             'registros_eliminados'   =>  $ins->countDelete(),
-            'comprasDelMes' => $ins->comprasDelMes(),
-            'totalComprado' => $ins->totalComprado(),
-            'totalProductosComprados' => $ins->totalProductosComprados(),
-            'titulo'   =>  'Listado de compra',
-            'pagina'    =>  'compra',
+            'ventasDelMes' => $ins->ventasDelMes(),
+            'totalVentas' => $ins->totalVentas(),
+            'totalProductosVentas' => $ins->totalProductosVentas(),
+            'titulo'   =>  'Listado de venta',
+            'pagina'    =>  'venta',
             'breadcrumb' => array(
                 array(
                     'url' => base_url(route_to('inicio')),
                     'name' => 'Inicio'
                 ),
                 array(
-                    'url' => base_url(route_to('compra')),
-                    'name' => 'Listado de compras'
+                    'url' => base_url(route_to('venta')),
+                    'name' => 'Listado de ventas'
                 )
             )
         ];
 
         if($data["esConsedido"]->leer){
-            return view('html/compra/index', $data);
+            return view('html/venta/index', $data);
         }
 
         return $this->response->setJSON([
@@ -44,45 +44,45 @@ class Ctr_compra extends BaseController{
     private function listar(){
         if ($this->request->isAJAX()) {
             $btn_acciones_list = getDisabledBtnAction($this->pagina);
-            $table = db_connect()->table('compra');
-            $datatable = $table->select('compra.*, 
+            $table = db_connect()->table('venta');
+            $datatable = $table->select('venta.*, 
             CONCAT(usuario.usuario) as usuario_nombre, 
             CONCAT(usuario.email) as usuario_email, 
-            CONCAT(persona.nombre_completo) as proveedor, 
-            compra.idcompra as compra_total,
-            (select sum(detalle_compra.cantidad) from detalle_compra where detalle_compra.idcompra = compra.idcompra) as cantidad_pedido
+            CONCAT(persona.nombre_completo) as cliente, 
+            venta.idventa as venta_total,
+            (select sum(detalle_venta.cantidad) from detalle_venta where detalle_venta.idventa = venta.idventa) as cantidad_pedido
             ');
-            $datatable->join('usuario', 'usuario.idusuario = compra.idusuario');
-            $datatable->join('persona', 'persona.idpersona = compra.idpersona');
+            $datatable->join('usuario', 'usuario.idusuario = venta.idusuario');
+            $datatable->join('persona', 'persona.idpersona = venta.idpersona');
 
             $queryFiltro = json_decode($this->request->getGetPost()['filtros_activos']) ?? [];
             $queryFechas = $queryFiltro->fecha ?? '';
-            $queryEstado = $queryFiltro->idproveedor ?? '';
+            $queryEstado = $queryFiltro->idcliente ?? '';
 
             if($queryFechas){
                 $fechasList = explode(',',$queryFechas);
                 $fechai = ltrim($fechasList[0] ?? '');
                 $fechaf = ltrim($fechasList[1]) ?? '';
                 if($fechai && $fechaf){
-                    $datatable->where("compra.fecha BETWEEN '$fechai' AND '$fechaf'");
+                    $datatable->where("venta.fecha BETWEEN '$fechai' AND '$fechaf'");
                 }
             }
             
             if($queryEstado != ''){
-                $datatable->where("compra.idpersona", $queryEstado);
+                $datatable->where("venta.idpersona", $queryEstado);
             }
 
             if($this->request->getGetPost()['eliminado'] == '1'){
-                $datatable->where('compra.deleted_at <>' , null);
+                $datatable->where('venta.deleted_at <>' , null);
                 return datatables($datatable)
                     ->addColumn('accion', function($data) {
-                        return btn_acciones(['restore'] , '', $data->idcompra);
+                        return btn_acciones(['restore'] , '', $data->idventa);
                     })
-                    ->editColumn('compra_total', function($value, $data) {
-                        $ins = new Compra();
-                        $sumCompra = $ins->getSumCompra($data->idcompra);
-                        if($sumCompra['resp']){
-                            $totales = $sumCompra['data'];
+                    ->editColumn('venta_total', function($value, $data) {
+                        $ins = new Venta();
+                        $sumVenta = $ins->getSumVenta($data->idventa);
+                        if($sumVenta['resp']){
+                            $totales = $sumVenta['data'];
                             return '<table class="table table-sm mb-0 table-bordered">
                                 <tbody>
                                     <tr>
@@ -107,37 +107,22 @@ class Ctr_compra extends BaseController{
                             return '';
                         }
                     })
-                    ->rawColumns(['accion','compra_total'])
+                    ->rawColumns(['accion','venta_total'])
                     ->make(false);
             }else{
-                $datatable->where('compra.deleted_at' , null);
+                $datatable->where('venta.deleted_at' , null);
                 return datatables($datatable)
                     ->addColumn('accion', function($data) use ($btn_acciones_list){
-
-                        $array_btn = $btn_acciones_list;
-                        $ins = new Compra();
-                        $existe = $ins->existeEnVenta($data->idcompra);
-
-                        if($existe){
-                            $array_btn = array_filter($array_btn, function($valor) {
-                                return $valor !== 'editar';
-                            });
-
-                            if($array_btn[0] == 'all'){
-                                $array_btn[0] = 'elim';
-                            }
-                        }
-
-                        return btn_acciones($array_btn , base_url(route_to('compra.editar', $data->idcompra)), $data->idcompra);
+                        return btn_acciones($btn_acciones_list , base_url(route_to('venta.editar', $data->idventa)), $data->idventa);
                     })
                     ->editColumn('estado', function($value, $data) {
-                        return '<a title="Cambiar estado" class="btn btn-link btn-sm text-'.($value=='1'?'success':'warning').'" data-action="estado" data-estado="'.$value.'" data-id="'.$data->idcompra.'" href="#">'.($value=='1'?'<i class="bi bi-toggle-on fs-4"></i>':'<i class="bi bi-toggle-off fs-4"></i>').'</a>';
+                        return '<a title="Cambiar estado" class="btn btn-link btn-sm text-'.($value=='1'?'success':'warning').'" data-action="estado" data-estado="'.$value.'" data-id="'.$data->idventa.'" href="#">'.($value=='1'?'<i class="bi bi-toggle-on fs-4"></i>':'<i class="bi bi-toggle-off fs-4"></i>').'</a>';
                     })
-                    ->editColumn('compra_total', function($value, $data) {
-                        $ins = new Compra();
-                        $sumCompra = $ins->getSumCompra($data->idcompra);
-                        if($sumCompra['resp']){
-                            $totales = $sumCompra['data'];
+                    ->editColumn('venta_total', function($value, $data) {
+                        $ins = new Venta();
+                        $sumVenta = $ins->getSumVenta($data->idventa);
+                        if($sumVenta['resp']){
+                            $totales = $sumVenta['data'];
                             return '<table class="table table-sm mb-0 table-bordered">
                                 <tbody>
                                     <tr>
@@ -162,7 +147,7 @@ class Ctr_compra extends BaseController{
                             return '';
                         }
                     })
-                    ->rawColumns(['accion', 'estado','compra_total'])
+                    ->rawColumns(['accion', 'estado','venta_total'])
                     ->make(false);
             }
         }else{
@@ -175,7 +160,7 @@ class Ctr_compra extends BaseController{
             'data_accessos' => [],
             'esConsedido'   => (object)esConsedido($this->pagina),
             'titulo'   =>  'Crear registro',
-            'pagina'    =>  'compra',
+            'pagina'    =>  'venta',
             'action'    =>  'add',
             'breadcrumb' => array(
                 array(
@@ -183,18 +168,18 @@ class Ctr_compra extends BaseController{
                     'name' => 'Inicio'
                 ),
                 array(
-                    'url' => base_url(route_to('compra')),
-                    'name' => 'Listado de compras'
+                    'url' => base_url(route_to('venta')),
+                    'name' => 'Listado de ventas'
                 ),
                 array(
-                    'url' => base_url(route_to('compra.crear')),
+                    'url' => base_url(route_to('venta.crear')),
                     'name' => 'Crear registro'
                 )
             )
         ];
 
         if($data["esConsedido"]->crear){
-            return view('html/compra/crear', $data);
+            return view('html/venta/crear', $data);
         }
 
         return $this->response->setJSON([
@@ -208,25 +193,25 @@ class Ctr_compra extends BaseController{
             'data_accessos' => [],
             'esConsedido'   => (object)esConsedido($this->pagina),
             'titulo'   =>  'Editar registro',
-            'pagina'    =>  'compra',
+            'pagina'    =>  'venta',
             'action'    =>  'edit',
-            'id'        =>  'idcompra',
+            'id'        =>  'idventa',
             'idValue'   =>  $id,
-            'data'      =>  $this->getCompra($id),
+            'data'      =>  $this->getVenta($id),
             'breadcrumb' => array(
                 array(
                     'url' => base_url(route_to('inicio')),
                     'name' => 'Inicio'
                 ),
                 array(
-                    'url' => base_url(route_to('compra')),
-                    'name' => 'Listado de compras'
+                    'url' => base_url(route_to('venta')),
+                    'name' => 'Listado de ventas'
                 )
             )
         ];
 
         if($data["esConsedido"]->modificar){
-            return view('html/compra/editar', $data);
+            return view('html/venta/editar', $data);
         }
 
         return $this->response->setJSON([
@@ -235,16 +220,16 @@ class Ctr_compra extends BaseController{
         ]);
     }
 
-    private function getCompra($id){
-        $ins = new Compra();
-        $cabecera = $ins->where('idcompra', $id)
-        ->join('persona', 'persona.idpersona = compra.idpersona')
-        ->select('compra.*, persona.nombre_completo as nombreCliente')->first();
+    private function getVenta($id){
+        $ins = new Venta();
+        $cabecera = $ins->where('idventa', $id)
+        ->join('persona', 'persona.idpersona = venta.idpersona')
+        ->select('venta.*, persona.nombre_completo as nombreCliente')->first();
 
-        $insDetalle = new Detalle_compra();
-        $detalle = $insDetalle->where('idcompra', $id)
-        ->join('producto', 'producto.idproducto = detalle_compra.idproducto')
-        ->select('detalle_compra.*, producto.nombre as nombreProducto, producto.imagen as imagen')->findAll();
+        $insDetalle = new Detalle_venta();
+        $detalle = $insDetalle->where('idventa', $id)
+        ->join('producto', 'producto.idproducto = detalle_venta.idproducto')
+        ->select('detalle_venta.*, producto.nombre as nombreProducto, producto.imagen as imagen')->findAll();
         return [
             "cabecera" => $cabecera,
             "detalle" => $detalle
@@ -293,7 +278,7 @@ class Ctr_compra extends BaseController{
 
     public function nombre() {
         $post = (object) $this->request->getGetPost();
-        $ins = new Compra();
+        $ins = new Venta();
         if ($post->id == '0') {
             echo json_encode(array('valid' => !$ins->existe($ins->table, strtoupper($post->nombre), 'nombre')));
             exit();
@@ -310,56 +295,63 @@ class Ctr_compra extends BaseController{
         }
     }
 
-    private function addCabeceraCompra($data){
+    private function addCabeceraVenta($data){
         try {
-            $ins = new Compra();
-            $dataCompra = [
+            $ins = new Venta();
+            $dataVenta = [
                 "idusuario" => session('usuario')['idusuario'],
-                "idpersona" => $data["proveedor"]["id"],
+                "idpersona" => $data["cliente"]["id"],
                 "fecha" => $data["fecha"],
+                "precio_total" => $data["subtotal"],
                 "estado" => 1,
             ];
-            $ins->insert($dataCompra);
+            $ins->insert($dataVenta);
             return $ins->getInsertID();
         } catch (\Exception $e) {
-            $e->getMessage();
+            // echo $e->getMessage();
             return null;
         }
     }
 
-    private function addDetalleCompra($data, $idCompra){
+    private function addDetalleVenta($data, $idVenta, $fecha){
         try {
-            $ins = new Detalle_compra();
+            $ins = new Detalle_venta();
             $insMultiple = [];
             foreach ($data as $key => $value) {
                 $insMultiple[] = [
-                    "idcompra" => $idCompra,
+                    "idventa" => $idVenta,
                     "idproducto" => $value["idProducto"],
                     "cantidad" => $value["cantidad"],
-                    "precio_compra" => $value["precioCompra"],
+                    "precio_venta" => $value["precioVenta"],
+                    "temporada" => obtenerTemporadaEcuador($fecha)['id'] ?? 'normal',
                     "iva" => 15,
-                    // "total" => $value["cantidad"] * $value["precioCompra"]
+                    // "total" => $value["cantidad"] * $value["precioVenta"]
                 ];
             }
 
             $ins->insertBatch($insMultiple);
             return true;
         } catch (\Exception $e) {
-            $e->getMessage();
+            echo $e->getMessage();
             return null;
         }
     }
 
     private function add($data){
         if ($this->request->isAJAX()) {
-            $respCompra = $this->addCabeceraCompra($data->compra["cabecera"]);
-            if(!$respCompra){
+            $respVenta = $this->addCabeceraVenta($data->venta["cabecera"]);
+            if(!$respVenta){
                 return false;
             }
 
-            $idCompra = $respCompra;
+            $idVenta = $respVenta;
+            $ins = new Venta();
+            $dataVenta = [
+                "numero_factura" => str_pad($idVenta, 6, '0', STR_PAD_LEFT)
+            ];
+            $ins->update($idVenta, $dataVenta);
             
-            $respDetalle = $this->addDetalleCompra($data->compra["detalle"], $idCompra);
+            $respDetalle = $this->addDetalleVenta($data->venta["detalle"], $idVenta, $data->venta["cabecera"]["fecha"]);
             if(!$respDetalle){
                 return false;
             }
@@ -372,21 +364,22 @@ class Ctr_compra extends BaseController{
 
     private function edit($id, $data){
         if ($this->request->isAJAX()) {
-            $respCabecera = $this->editCabeceraCompra($id, $data->compra["cabecera"]);
+            $respCabecera = $this->editCabeceraVenta($id, $data->venta["cabecera"]);
             if(!$respCabecera){
                 return false;
             }
             
-            // $insDetalle = new Detalle_compra();
-            // $respDetalle = $insDetalle->where('idcompra', $id)->delete();
+            // $insDetalle = new Detalle_venta();
+            // $respDetalle = $insDetalle->where('idventa', $id)->delete();
+
             $db = db_connect();
-            $db->query('DELETE FROM detalle_compra where idcompra='.$id);
+            $db->query('DELETE FROM detalle_venta where idventa='.$id);
 
             if(!$respDetalle){
                 return false;
             }
 
-            $respDetalle = $this->addDetalleCompra($data->compra["detalle"], $id);
+            $respDetalle = $this->addDetalleVenta($data->venta["detalle"], $id);
             if(!$respDetalle){
                 return false;
             }
@@ -396,17 +389,18 @@ class Ctr_compra extends BaseController{
         }
     }
 
-    private function editCabeceraCompra($id, $data){
+    private function editCabeceraVenta($id, $data){
         try {
-            $ins = new Compra();
+            $ins = new Venta();
 
-            $dataCompra = [
+            $dataVenta = [
                 // "idusuario" => session('usuario')['idusuario'],
-                "idpersona" => $data["proveedor"]["id"],
+                "idpersona" => $data["cliente"]["id"],
                 "fecha" => $data["fecha"],
+                "precio_total" => $data["subtotal"],
                 "estado" => 1,
             ];
-            $ins->update($id, $dataCompra);
+            $ins->update($id, $dataVenta);
             return $id;
         } catch (\Exception $e) {
             $e->getMessage();
@@ -416,8 +410,11 @@ class Ctr_compra extends BaseController{
 
     private function delete($id){
         if ($this->request->isAJAX()) {
-            $ins = new Compra();
-            return $ins->delete($id);
+            // $ins = new Venta();
+            // return $ins->delete($id);
+            $db = db_connect();
+            $db->query('DELETE FROM venta where idventa='.$id);
+            return true;
         }else{
             $this->response->setStatusCode(404, 'Error con la petición');
         }
@@ -426,7 +423,7 @@ class Ctr_compra extends BaseController{
     private function restore($id){
         if ($this->request->isAJAX()) {
             $db = db_connect();
-            $db->query('UPDATE compra set deleted_at = NULL where idcompra='.$id);
+            $db->query('UPDATE venta set deleted_at = NULL where idventa='.$id);
             return true;
         }else{
             $this->response->setStatusCode(404, 'Error con la petición');
@@ -436,7 +433,7 @@ class Ctr_compra extends BaseController{
     private function estado($id, $data){
         if ($this->request->isAJAX()) {
             $db = db_connect();
-            $db->query('UPDATE compra set updated_at="'.date('Y-m-d H:i:s', time()).'", estado = "'.($data->estado=='1'?'0':'1').'" where idcompra='.$id);
+            $db->query('UPDATE venta set updated_at="'.date('Y-m-d H:i:s', time()).'", estado = "'.($data->estado=='1'?'0':'1').'" where idventa='.$id);
             return true;
         }else{
             $this->response->setStatusCode(404, 'Error con la petición');
@@ -444,7 +441,7 @@ class Ctr_compra extends BaseController{
     }
 
     public function selectBD(){
-        $modelLocal = new Compra();
+        $modelLocal = new Venta();
         $request = service('request');
         $post = $request->getPost();
         
@@ -456,7 +453,7 @@ class Ctr_compra extends BaseController{
         // Construcción segura de la consulta
         $builder = $modelLocal->builder();
         
-        $builder->select("CONCAT( nombre ) AS nombre, idcompra");
+        $builder->select("CONCAT( nombre ) AS nombre, idventa");
         //->where('idusuario', session('usuario')['idusuario']);//
 
         if (!empty($searchTerm)) {

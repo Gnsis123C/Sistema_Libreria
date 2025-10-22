@@ -40,7 +40,7 @@ function esConsedido($pagina = "") {
 
 function getMenu($pagina = '') {
 	$idusuario = session('usuario')["idusuario"];
-	$acceso_menu = ['inicio', 'empresa', 'usuario','categoria','rol','atributo','cliente','proveedor','producto','compra'];
+	$acceso_menu = ['inicio', 'empresa', 'usuario','categoria','rol','atributo','cliente','proveedor','producto','compra', 'venta'];
 	if($idusuario != 1) {
 		$db = Database::connect();
 		$builder = $db->table('detalle_rol');
@@ -124,6 +124,13 @@ function getMenu($pagina = '') {
 			'tipo_text' => 'Admin. Ventas',
 			'tipo_text_title' => 'Administración de ventas',
 			'data' => [
+				[
+					'titulo' => 'Ventas',
+					'link' => base_url(route_to('venta')),
+					'icon' => 'cart-1',
+					'active' 	=> false,
+					'pagina' 	=> 'venta',
+				],
 				[
 					'titulo' => 'Clientes',
 					'link' => base_url(route_to('persona','cliente')),
@@ -410,3 +417,296 @@ if ( ! function_exists('list_tipo_usuario()')){
 		}
 	}
 }
+
+function obtenerTemporadaEcuador($fecha = null) {
+    // Si no se proporciona fecha, usar la actual
+    $fecha = $fecha ? DateTime::createFromFormat('Y-m-d', $fecha) : new DateTime();
+    $fechaStr = $fecha->format('Y-m-d');
+    $anio = (int)$fecha->format('Y');
+    
+    // Array con todas las temporadas y festivos de Ecuador CON RANGOS
+    $temporadas = [
+        // NAVIDAD - Rango amplio (todo diciembre + primera semana de enero)
+        [
+            'id' => 'navidad',
+            'title' => 'Navidad y Fin de Año',
+            'fecha' => $anio . '-12-01/' . ($anio + 1) . '-01-07',
+            'tipo' => 'festividad',
+            'prioridad' => 10
+        ],
+        
+        // AÑO NUEVO - Rango específico
+        [
+            'id' => 'ano_nuevo',
+            'title' => 'Año Nuevo',
+            'fecha' => $anio . '-12-28/' . ($anio + 1) . '-01-03',
+            'tipo' => 'festivo',
+            'prioridad' => 9
+        ],
+        
+        // CARNAVAL - Rango extendido (semana antes y después)
+        [
+            'id' => 'carnaval',
+            'title' => 'Carnaval',
+            'fecha' => calcularRangoFestivo(calcularCarnaval($anio), 4, 2),
+            'tipo' => 'festivo',
+            'prioridad' => 8
+        ],
+        
+        // SEMANA SANTA - Rango extendido
+        [
+            'id' => 'semana_santa',
+            'title' => 'Semana Santa',
+            'fecha' => calcularRangoFestivo(calcularViernesSanto($anio), 3, 3),
+            'tipo' => 'festivo',
+            'prioridad' => 8
+        ],
+        
+        // DÍA DE LOS DIFUNTOS - Rango extendido
+        [
+            'id' => 'dia_difuntos',
+            'title' => 'Día de los Difuntos',
+            'fecha' => calcularRangoFestivo($anio . '-11-02', 2, 2),
+            'tipo' => 'festivo',
+            'prioridad' => 7
+        ],
+        
+        // MES DE LA PATRIA - Agosto completo
+        [
+            'id' => 'mes_patria',
+            'title' => 'Mes de la Patria',
+            'fecha' => $anio . '-08-01/' . $anio . '-08-31',
+            'tipo' => 'temporada',
+            'prioridad' => 6
+        ],
+        
+        // INDEPENDENCIA DE GUAYAQUIL - Rango extendido
+        [
+            'id' => 'independencia_guayaquil',
+            'title' => 'Independencia de Guayaquil',
+            'fecha' => calcularRangoFestivo($anio . '-10-09', 3, 3),
+            'tipo' => 'festivo',
+            'prioridad' => 7
+        ],
+        
+        // INDEPENDENCIA DE CUENCA - Rango extendido
+        [
+            'id' => 'independencia_cuenca',
+            'title' => 'Independencia de Cuenca',
+            'fecha' => calcularRangoFestivo($anio . '-11-03', 2, 2),
+            'tipo' => 'festivo',
+            'prioridad' => 7
+        ],
+        
+        // TEMPORADA DE COSTA - Rango amplio
+        [
+            'id' => 'temporada_costa',
+            'title' => 'Temporada de Costa',
+            'fecha' => $anio . '-12-15/' . ($anio + 1) . '-05-15',
+            'tipo' => 'temporada',
+            'prioridad' => 5
+        ],
+        
+        // TEMPORADA DE SIERRA - Rango amplio
+        [
+            'id' => 'temporada_sierra',
+            'title' => 'Temporada de Sierra',
+            'fecha' => $anio . '-06-01/' . $anio . '-10-15',
+            'tipo' => 'temporada',
+            'prioridad' => 5
+        ],
+        
+        // BLACK FRIDAY - Rango extendido (semana del Black Friday)
+        [
+            'id' => 'black_friday',
+            'title' => 'Black Friday',
+            'fecha' => calcularRangoFestivo(calcularBlackFriday($anio), 2, 4),
+            'tipo' => 'comercial',
+            'prioridad' => 6
+        ],
+        
+        // DÍA DE LA MADRE (segundo domingo de mayo) - Rango extendido
+        [
+            'id' => 'dia_madre',
+            'title' => 'Día de la Madre',
+            'fecha' => calcularRangoFestivo(calcularDiaMadre($anio), 3, 3),
+            'tipo' => 'especial',
+            'prioridad' => 6
+        ],
+        
+        // DÍA DEL PADRE (tercer domingo de junio) - Rango extendido
+        [
+            'id' => 'dia_padre',
+            'title' => 'Día del Padre',
+            'fecha' => calcularRangoFestivo(calcularDiaPadre($anio), 3, 3),
+            'tipo' => 'especial',
+            'prioridad' => 6
+        ],
+        
+        // FESTIVOS SIN RANGO AMPLIO (solo el día específico)
+        [
+            'id' => 'dia_trabajo',
+            'title' => 'Día del Trabajo',
+            'fecha' => $anio . '-05-01',
+            'tipo' => 'festivo',
+            'prioridad' => 7
+        ],
+        [
+            'id' => 'batalla_pichincha',
+            'title' => 'Batalla de Pichincha',
+            'fecha' => $anio . '-05-24',
+            'tipo' => 'festivo',
+            'prioridad' => 7
+        ],
+        [
+            'id' => 'primer_grito',
+            'title' => 'Primer Grito de Independencia',
+            'fecha' => $anio . '-08-10',
+            'tipo' => 'festivo',
+            'prioridad' => 7
+        ]
+    ];
+    
+    // Ordenar por prioridad (más alta primero)
+    usort($temporadas, function($a, $b) {
+        return $b['prioridad'] - $a['prioridad'];
+    });
+    
+    // Buscar la temporada/festivo para la fecha dada
+    foreach ($temporadas as $temporada) {
+        if (esFechaEnRango($fechaStr, $temporada['fecha'])) {
+            return [
+                'id' => $temporada['id'],
+                'title' => $temporada['title'],
+                'tipo' => $temporada['tipo'],
+                'prioridad' => $temporada['prioridad']
+            ];
+        }
+    }
+    
+    // Si no está en ninguna temporada especial
+    return [
+        'id' => 'normal',
+        'title' => 'Día Normal',
+        'tipo' => 'normal',
+        'prioridad' => 0
+    ];
+}
+
+// FUNCIONES AUXILIARES MEJORADAS
+
+function calcularRangoFestivo($fechaCentral, $diasAntes, $diasDespues) {
+    $fecha = DateTime::createFromFormat('Y-m-d', $fechaCentral);
+    $inicio = clone $fecha;
+    $inicio->modify("-$diasAntes days");
+    $fin = clone $fecha;
+    $fin->modify("+$diasDespues days");
+    
+    return $inicio->format('Y-m-d') . '/' . $fin->format('Y-m-d');
+}
+
+function calcularCarnaval($anio) {
+    $pascua = calcularPascua($anio);
+    $carnaval = clone $pascua;
+    $carnaval->modify('-47 days');
+    return $carnaval->format('Y-m-d');
+}
+
+function calcularViernesSanto($anio) {
+    $pascua = calcularPascua($anio);
+    $viernesSanto = clone $pascua;
+    $viernesSanto->modify('-2 days');
+    return $viernesSanto->format('Y-m-d');
+}
+
+function calcularDiaMadre($anio) {
+    // Segundo domingo de mayo
+    $mayo = new DateTime($anio . '-05-01');
+    $primerDomingo = clone $mayo;
+    $primerDomingo->modify('first sunday of may');
+    $segundoDomingo = clone $primerDomingo;
+    $segundoDomingo->modify('+1 week');
+    return $segundoDomingo->format('Y-m-d');
+}
+
+function calcularDiaPadre($anio) {
+    // Tercer domingo de junio
+    $junio = new DateTime($anio . '-06-01');
+    $primerDomingo = clone $junio;
+    $primerDomingo->modify('first sunday of june');
+    $tercerDomingo = clone $primerDomingo;
+    $tercerDomingo->modify('+2 weeks');
+    return $tercerDomingo->format('Y-m-d');
+}
+
+function calcularPascua($anio) {
+    // Algoritmo para calcular Domingo de Pascua
+    $a = $anio % 19;
+    $b = floor($anio / 100);
+    $c = $anio % 100;
+    $d = floor($b / 4);
+    $e = $b % 4;
+    $f = floor(($b + 8) / 25);
+    $g = floor(($b - $f + 1) / 3);
+    $h = (19 * $a + $b - $d - $g + 15) % 30;
+    $i = floor($c / 4);
+    $k = $c % 4;
+    $l = (32 + 2 * $e + 2 * $i - $h - $k) % 7;
+    $m = floor(($a + 11 * $h + 22 * $l) / 451);
+    $mes = floor(($h + $l - 7 * $m + 114) / 31);
+    $dia = (($h + $l - 7 * $m + 114) % 31) + 1;
+    
+    return DateTime::createFromFormat('Y-m-d', $anio . '-' . $mes . '-' . $dia);
+}
+
+function calcularBlackFriday($anio) {
+    $noviembre = new DateTime($anio . '-11-01');
+    $primerJueves = clone $noviembre;
+    $primerJueves->modify('first thursday of november');
+    $cuartoJueves = clone $primerJueves;
+    $cuartoJueves->modify('+3 weeks');
+    $blackFriday = clone $cuartoJueves;
+    $blackFriday->modify('+1 day');
+    return $blackFriday->format('Y-m-d');
+}
+
+function esFechaEnRango($fecha, $rango) {
+    // Si es un rango de fechas (ej: "2024-12-15/2025-04-30")
+    if (strpos($rango, '/') !== false) {
+        list($inicio, $fin) = explode('/', $rango);
+        return $fecha >= $inicio && $fecha <= $fin;
+    }
+    
+    // Si es una fecha específica
+    return $fecha === $rango;
+}
+
+// FUNCIÓN PARA OBTENER INFO COMPLETA DE TEMPORADA
+function obtenerInfoTemporadaCompleta($fecha = null) {
+    return obtenerTemporadaEcuador($fecha);
+}
+
+// EJEMPLOS DE USO
+/*
+// Obtener temporada actual con información completa
+$temporadaActual = obtenerTemporadaEcuador();
+echo "ID: " . $temporadaActual['id'] . "\n";
+echo "Título: " . $temporadaActual['title'] . "\n";
+echo "Tipo: " . $temporadaActual['tipo'] . "\n";
+
+// Probar fechas en rangos
+$fechasPrueba = [
+    '2024-12-20', // En rango de Navidad
+    '2024-12-30', // En rango de Año Nuevo
+    '2024-02-10', // Posiblemente en rango de Carnaval
+    '2024-11-01', // En rango de Día de Difuntos
+    '2024-08-15', // En Mes de la Patria
+    '2024-05-10', // En rango de Día de la Madre
+];
+
+foreach ($fechasPrueba as $fecha) {
+    $temporada = obtenerTemporadaEcuador($fecha);
+    echo "Fecha: $fecha - Temporada: {$temporada['title']} ({$temporada['id']})\n";
+}
+*/
+?>

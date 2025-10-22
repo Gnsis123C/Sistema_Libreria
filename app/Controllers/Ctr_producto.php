@@ -48,6 +48,7 @@ class Ctr_producto extends BaseController{
             $datatable = $table->select('producto.*, 
             CONCAT(empresa.nombre) as empresa, 
             CONCAT(categoria.nombre) as categoria, 
+            (producto.stock - producto.stock_usado) as stock_restante,
             ( select sum(detalle_compra.venta_usado_cantidad) from detalle_compra where detalle_compra.idproducto = producto.idproducto ) as stock_actual');
             $datatable->join('empresa', 'producto.idempresa = empresa.idempresa');
             $datatable->join('categoria', 'categoria.idcategoria = producto.idcategoria');
@@ -394,10 +395,18 @@ class Ctr_producto extends BaseController{
 
         // Construcción segura de la consulta
         $builder = $modelLocal->builder();
+        //(select sum(detalle_compra.cantidad) from detalle_compra join compra on (compra.idcompra = detalle_compra.idcompra) where compra.deleted_at IS NOT NULL and detalle_compra.idproducto = producto.idproducto) as cantidad_disponible
+        $builder->select("CONCAT( nombre ) AS nombre, 
+        idproducto, 
+        imagen,
+        precio_venta,
+        (stock - stock_usado) as stock")
+        ->where('estado', 1);
+        if($post['tipo'] == 'venta'){
+            $builder->where('(stock - stock_usado) > 0');
+        }
         
-        $builder->select("CONCAT( nombre ) AS nombre, idproducto, imagen")
-        ->where('estado', 1)
-        ->where('deleted_at', null);
+        $builder->where('deleted_at', null);
 
         if (!empty($searchTerm)) {
             $builder->groupStart()

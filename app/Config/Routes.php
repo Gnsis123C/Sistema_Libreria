@@ -86,6 +86,13 @@ $routes->group('', ['filter' => 'auth'], function($routes) {
             $routes->post('compra/', 'Ctr_compra::action', ['as'=>'compra.actions']);
             $routes->post('compra/select/', 'Ctr_compra::selectBD', ['as'=>'compra.select']);
 
+            //VENTA
+            $routes->get('venta/', 'Ctr_venta::index', ['as'=>'venta']);
+            $routes->get('venta/add/', 'Ctr_venta::crear', ['as'=>'venta.crear']);
+            $routes->get('venta/edit/(:num)', 'Ctr_venta::editar/$1', ['as'=>'venta.editar']);
+            $routes->post('venta/', 'Ctr_venta::action', ['as'=>'venta.actions']);
+            $routes->post('venta/select/', 'Ctr_venta::selectBD', ['as'=>'venta.select']);
+
         });
     });
 });
