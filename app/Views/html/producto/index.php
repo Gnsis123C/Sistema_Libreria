@@ -7,6 +7,7 @@
 <?= $this->section('css') ?>
 <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
 <link rel="stylesheet" href="https://cdn.datatables.net/responsive/3.0.4/css/responsive.bootstrap5.css">
+    <link rel="stylesheet" type="text/css" href="<?= base_url() ?>/assets/plugins/lightbox2/css/lightbox.css" /> 
 <style>
     #listartable {
         border: 1px solid #dee2e6;

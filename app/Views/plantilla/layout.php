@@ -203,14 +203,21 @@
   </style>
   <style>
     .img-logo-empresa.rounded {
-      width: 60px;
-      height: 60px;
+      width: 40px;
+      height: 40px;
       object-fit: cover;
     }
 
     .nav-tabs .nav-link.active {
         background-color: #fff;
         border-bottom-width: 0px;
+    }
+    .items-menu-nav .nav-link.active::after {
+        border-top-right-radius: 1rem;
+    }
+
+    .items-menu-nav .nav-link.active::before {
+        border-bottom-right-radius: 1rem;
     }
   </style>
   <?= $this->renderSection('css') ?>

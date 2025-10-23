@@ -2,10 +2,13 @@
     <h4>
       <div class="text-center">
         <img src="<?= base_url(session('empresa')['logo']) ?>" class="img-logo-empresa rounded" alt="Logo" width="100" height="100">
+        <small class="ps-2">
+          <?= session('empresa')['nombre'] ?>
+        </small>
       </div>
     </h4>
 </div>
-<ul class="nav flex-column flex-nowrap items-menu-nav ps-5 py-5 pt-4">
+<ul class="nav flex-column flex-nowrap items-menu-nav ps-5 py-2 pt-3">
   <?php 
       $menuTemp = getMenu($pagina);
   ?>
