@@ -560,10 +560,11 @@ class Ctr_producto extends BaseController{
             // Mover primero el archivo
             if ($imageFile->move($uploadPath, $newName)) {
                 $finalPathTrans = $uploadPath . "trans_" . $newName;
-                $finalURLTrans = 'uploads/' . $folder . "trans_" . $newName;
+                //$finalURLTrans = 'uploads/' . $folder . "trans_" . $newName;
+                $finalURLTrans = 'uploads/' . $folder . $newName;
 
                 // Aplicar transparencia después de moverlo
-                $this->makeWhiteTransparent($finalPath, $finalPathTrans);
+                //$this->makeWhiteTransparent($finalPath, $finalPathTrans);
 
                 return ['resp' => true, 'imageUrl' => $finalURLTrans];
             } else {
