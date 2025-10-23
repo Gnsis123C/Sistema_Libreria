@@ -219,6 +219,25 @@
     .items-menu-nav .nav-link.active::before {
         border-bottom-right-radius: 1rem;
     }
+
+    .items-menu-nav {
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  /* Transición suave para el efecto de desvanecimiento (opcional) */
+  transition: opacity 0.2s;
+}
+
+/* Ocultar scrollbar en WebKit (Chrome, Safari, Edge) */
+.items-menu-nav.hide-scrollbar::-webkit-scrollbar {
+  width: 0 !important;
+  background: transparent;
+}
+
+/* Ocultar en Firefox */
+.items-menu-nav.hide-scrollbar {
+  scrollbar-width: none; /* 'none' oculta la barra visualmente en Firefox */
+}
   </style>
   <?= $this->renderSection('css') ?>
 
@@ -260,6 +279,37 @@
   <!-- End Javascripts -->
   <?= $this->renderSection('script') ?>
   <script>
+    // Selecciona el contenedor
+const scrollContainer = document.querySelector('.items-menu-nav');
+
+if (scrollContainer) {
+  let hideTimer;
+
+  const showScrollbar = () => {
+    scrollContainer.classList.remove('hide-scrollbar');
+  };
+
+  const hideScrollbar = () => {
+    scrollContainer.classList.add('hide-scrollbar');
+  };
+
+  // Mostrar al hacer scroll
+  scrollContainer.addEventListener('scroll', () => {
+    showScrollbar();
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(hideScrollbar, 2000); // 2 segundos
+  });
+
+  // Opcional: mostrar al mover el mouse dentro del contenedor (mejora UX)
+  scrollContainer.addEventListener('mouseenter', () => {
+    showScrollbar();
+    clearTimeout(hideTimer);
+  });
+
+  scrollContainer.addEventListener('mouseleave', () => {
+    hideTimer = setTimeout(hideScrollbar, 2000);
+  });
+}
     // Toggle sidebar for mobile
     function toggleSidebar() {
       document.getElementById('sidebar').classList.toggle('show');
