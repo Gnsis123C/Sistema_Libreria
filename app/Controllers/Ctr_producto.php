@@ -290,17 +290,19 @@ class Ctr_producto extends BaseController{
 
             foreach ($data['atributos'] as $atributo) {
                 $idAtributo = $this->addAtributo($atributo);
-
-                foreach ($atributo->data->nombre as $valor) {
-                    $idValoratributo = $this->addValoratributo($valor, $idAtributo);
-                    $ins_Detalle_atributo_producto = new Detalle_atributo_producto();
-                    $ins_Detalle_atributo_producto->insert([
-                        'idproducto' => $idProducto,
-                        'estado' => 1,
-                        'precio_pvp' => 0,
-                        'idvaloratributo' => $idValoratributo
-                    ], false);
-                }
+                                                                                            
+                if($atributo->data->nombre != ''){
+                    foreach ($atributo->data->nombre as $valor) {
+                        $idValoratributo = $this->addValoratributo($valor, $idAtributo);
+                        $ins_Detalle_atributo_producto = new Detalle_atributo_producto();
+                        $ins_Detalle_atributo_producto->insert([
+                            'idproducto' => $idProducto,
+                            'estado' => 1,
+                            'precio_pvp' => 0,
+                            'idvaloratributo' => $idValoratributo
+                        ], false);
+                    }
+                };
 
             }
             return true;
