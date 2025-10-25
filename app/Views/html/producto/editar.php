@@ -1003,6 +1003,24 @@
             editarAtributo = true;
         })
 
+        $('#accordionAtributo').on('select2:unselect', "select[data-accordeon-select]", function (e) {
+            const indice = $(this).data("indice");
+            const key = $(this).data("key");
+            const idTemp = $(this).data("id");
+            const idSelectTemp = "select[data-indice='"+indice+"']";
+            const valoresSeleccionados = $(idSelectTemp).select2('data');
+            const data = e.params.data; //Valor último seleccionado
+            
+            accordeonAtributo.CRUD.atributos.find((atributo) => {
+                if(atributo.indice == indice){
+                    atributo.data[key] = valoresSeleccionados;
+                    return true;
+                }
+            });
+
+            editarAtributo = true;
+        });
+
         dataAtributo.forEach(function(item) {
             const atributo = {
                 indice: accordeonAtributo.CRUD.idDinamico(),
