@@ -164,6 +164,7 @@ class Ctr_producto extends BaseController{
         ->select("producto.*, categoria.nombre as categoria_nombre, empresa.nombre as empresa_nombre")
         ->join('categoria', 'producto.idcategoria = categoria.idcategoria')
         ->join('empresa', 'producto.idempresa = empresa.idempresa')
+        ->where('producto.idproducto', $id)
         ->first();
         if($data){
             return $data;

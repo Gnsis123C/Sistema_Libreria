@@ -61,7 +61,8 @@ class Producto extends Model
             $str .= '('.$key.'="'.$value.'")' . (($i + 1) == $tamanioList ? '' : ' and ');
             $i++;
         }
-        $query = $db->query('select * from ' . $tabla . ' where ' . $idtabla . '!=' . $id . ' and ' . $str);
+        $queryText = 'select * from ' . $tabla . ' where ' . $idtabla . '!=' . $id . ' and ' . $str;
+        $query = $db->query($queryText);
         return (count($query->getResult('array')) > 0) ? true : false;
     }
 
