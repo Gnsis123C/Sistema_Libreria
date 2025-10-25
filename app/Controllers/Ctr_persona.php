@@ -110,7 +110,7 @@ class Ctr_persona extends BaseController{
             'titulo'   => $titulo,
             'pagina'    =>  $this->pagina,
             'action'    =>  'add',
-            'attrform' => $this->personasForm('crear', 0),
+            'attrform' => $this->personasForm('crear', 0, $pagina),
             'breadcrumb' => array(
                 array(
                     'url' => base_url(route_to('inicio')),
@@ -153,7 +153,7 @@ class Ctr_persona extends BaseController{
             'pagina'    =>  $this->pagina,
             'action'    =>  'edit',
             'id'        =>  'idpersona',
-            'attrform' => $this->personasForm('editar', $id),
+            'attrform' => $this->personasForm('editar', $id, $pagina),
             'breadcrumb' => array(
                 array(
                     'url' => base_url(route_to('inicio')),
@@ -176,7 +176,7 @@ class Ctr_persona extends BaseController{
         ]);
     }
 
-    private function personasForm($action, $id){
+    private function personasForm($action, $id, $pagina){
         $data = array();
         $tipo = 'Cédula';
         if($this->pagina == 'cliente'){
@@ -267,7 +267,7 @@ class Ctr_persona extends BaseController{
                 'type' => 'number',
                 'column' => 'col-md-12',
                 'value' => ($action == 'editar'? $data['cedula_ruc']:''),
-                'max' => 10,
+                'max' => $pagina == 'cliente' ? 10 : 13,
                 'title' => $tipo.', de la persona',
                 'placeholder' => $tipo.', de la persona',
                 'requerido' => true
